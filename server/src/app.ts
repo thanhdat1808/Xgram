@@ -48,7 +48,6 @@ class App {
     if (this.env !== 'production') {
       set('debug', true);
     }
-    console.log('111111', dbConnection.url);
     connect(dbConnection.url, dbConnection.options);
   }
 
