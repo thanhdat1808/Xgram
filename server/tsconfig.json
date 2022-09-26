@@ -33,8 +33,9 @@
       "@routes/*": ["routes/*"],
       "@services/*": ["services/*"],
       "@utils/*": ["utils/*"]
-    }
+    },
+    "rootDir": "./src"
   },
-  "include": ["src/**/*.ts", "src/**/*.json", ".env"],
-  "exclude": ["node_modules", "src/http", "src/logs", "src/tests"]
+  "include": ["src/**/*"]
+  // "exclude": ["node_modules", "src/http", "src/logs", "src/tests"]
 }

@@ -1,6 +1,14 @@
 {
+  "files.exclude": {
+    // "**/node_modules": true
+  },
+  "[javascript]": {
+    "editor.tabSize": 2,
+  },
+  "javascript.validate.enable": false,
+  "eslint.autoFixOnSave": true,
+  "git.ignoreLimitWarning": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "editor.formatOnSave": false
 }

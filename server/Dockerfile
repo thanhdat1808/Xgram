@@ -9,6 +9,8 @@ RUN npm i || npm i
 
 COPY . .
 
+RUN npm run build
+
 EXPOSE 3000
 
 # Development build stage
