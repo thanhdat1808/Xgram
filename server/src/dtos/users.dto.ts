@@ -1,48 +1,48 @@
-import { IsEmail, IsString, IsNumber } from 'class-validator';
+import { IsEmail, IsString, IsNumber, IsArray } from 'class-validator';
 
 export class  CreateUserDto {
   @IsEmail()
-  public email: string;
+  email: string;
 
   @IsString()
-  public password: string;
+  password: string;
 
   @IsString()
-  public full_name: string
+  full_name: string
   
   @IsString()
-  public avatar_url: string
+  avatar_url: string
 
   @IsString()
-  public bio: string
+  bio: string
 
   @IsNumber()
-  public gender: number
+  gender: number
 }
 export class  UpdateUserDto {
   @IsEmail()
-  public email: string;
+  email: string;
 
   @IsString()
-  public password: string;
+  password: string;
 
   @IsString()
-  public full_name: string
+  full_name: string
   
   @IsString()
-  public avatar_url: string
+  avatar_url: string
 
   @IsString()
-  public bio: string
+  bio: string
 
   @IsNumber()
-  public gender: number
+  gender: number
 }
 export class  SetFollowerUserDto {
-  @IsEmail()
-  public email: string;
+  @IsArray()
+  followers: string[]
 }
 export class  SetFollowingUserDto {
-  @IsEmail()
-  public email: string;
+  @IsArray()
+  email: string[]
 }

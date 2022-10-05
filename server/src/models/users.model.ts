@@ -21,12 +21,16 @@ const userSchema: Schema = new Schema({
   bio: {
     type: String,
   },
-  followers: [{
-    type: Schema.Types.ObjectId,
-  }],
-  following: [{
-    type: Schema.Types.ObjectId,
-  }],
+  followers: {
+    type: [{
+      type: Schema.Types.ObjectId,
+    }]
+  },
+  following: {
+    type: [{
+      type: Schema.Types.ObjectId,
+    }]
+  },
   gender: {
     type: Number,
     require: true,

@@ -18,8 +18,8 @@ const postSchema: Schema = new Schema({
   },
 	reactions: {
 		type: [{
-			type: {
-				type: Number
+			like: {
+				type: Boolean
 			},
 			reacted_by: {
 				type: Schema.Types.ObjectId,
