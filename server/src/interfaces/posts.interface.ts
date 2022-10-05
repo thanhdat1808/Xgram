@@ -3,11 +3,11 @@ export interface Post {
 	_id: string
 	message: string
 	medias: [{
-			url: string,
-			isVideo: boolean
+		url: string,
+		isVideo: boolean
 	}]
 	reactions: [{
-		type: number,
+		like: boolean,
 		reacted_by: string
 	}]
 	comments: [{
