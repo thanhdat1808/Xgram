@@ -1,10 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
+import { CreatePostDto } from '@/dtos/posts.dto';
+import { Post } from '@interfaces/posts.interface';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
+import postService from '@services/posts.service';
 
 class PostsController {
   public userService = new userService();
+  public postService = new postService();
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -16,21 +20,29 @@ class PostsController {
     }
   };
 
-  public getUserById = async (req: Request, res: Response, next: NextFunction) => {
+  public getPostById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId: string = req.params.id;
-      const findOneUserData: User = await this.userService.findUserById(userId);
+      const postId: string = req.params.id;
+      const findOnePostData: Post = await this.postService.findPostById(postId);
 
-      res.status(200).json({ data: findOneUserData, message: 'findOne' });
+      res.status(200).json({ data: findOnePostData, message: 'findOne' });
     } catch (error) {
       next(error);
     }
   };
 
-  public createPost = async (req: Request, res: Response, next: NextFunction) => {
-    console.log('22222', req.query);
-
-    return res.send(req.body)
+  public createPost = async (req: Request, res: Response, next: NextFunction): Promise<object> => {
+    try {
+      const postData: CreatePostDto = {
+        ...req.body,
+        medias: req.files
+      }
+      console.log('111111', postData)
+      const createPost = await this.postService.createPost(postData)
+      return res.send(createPost)
+    } catch (error) {
+      next(error);
+    }
   };
 
   public updateUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -45,10 +57,10 @@ class PostsController {
     }
   };
 
-  public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  public deletePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId: string = req.params.id;
-      const deleteUserData: User = await this.userService.deleteUser(userId);
+      const postId: string = req.params.id;
+      const deleteUserData: Post = await this.postService.deletePost(postId);
 
       res.status(200).json({ data: deleteUserData, message: 'deleted' });
     } catch (error) {

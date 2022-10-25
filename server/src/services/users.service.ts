@@ -1,10 +1,11 @@
 import { hash } from 'bcrypt';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, LoginUser } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import userModel from '@models/users.model';
 import { isEmpty } from '@utils/util';
-
+import * as bcrypt from 'bcrypt'
+import * as jwt from 'jsonwebtoken'
 class UserService {
   public users = userModel;
 
@@ -23,15 +24,17 @@ class UserService {
   }
 
   public async createUser(userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
-
-    const findUser: User = await this.users.findOne({ email: userData.email });
-    if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
-
-    const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
-
-    return createUserData;
+    try {
+      if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
+      const findUser: User = await this.users.findOne({ email: userData.email });
+      if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
+      const hashedPassword = await hash(userData.password, 10);
+      const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
+      return createUserData;
+    }
+    catch (error) {
+      throw new HttpException(500, `Fail to insert DB`);
+    }
   }
 
   public async updateUser(userId: string, userData: CreateUserDto): Promise<User> {
@@ -58,6 +61,22 @@ class UserService {
     if (!deleteUserById) throw new HttpException(409, "User doesn't exist");
 
     return deleteUserById;
+  }
+
+  public async loginUser(userData: LoginUser): Promise<string> {
+    try {
+      const user = await this.users.findOne({ email: userData.email });
+      if (!user) throw new HttpException(422, `User doesn't exist`)
+
+      const checkPassword = await bcrypt.compare(userData.password, user.password);
+
+      if (!checkPassword) throw new HttpException(422, `Email or Password is not correct`);
+
+      const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: "100h" });
+      return token
+    } catch (error) {
+      throw new HttpException(500, `Fail to search DB`);
+    }
   }
 }
 

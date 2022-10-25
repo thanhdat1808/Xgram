@@ -1,15 +1,15 @@
-import { IsEmail, IsString, IsNumber, IsArray } from 'class-validator';
+import { IsEmail, IsString, IsNumber, IsArray } from 'class-validator'
 
-export class  CreateUserDto {
+export class CreateUserDto {
   @IsEmail()
-  email: string;
+  email: string
 
   @IsString()
-  password: string;
+  password: string
 
   @IsString()
   full_name: string
-  
+
   @IsString()
   avatar_url: string
 
@@ -19,16 +19,16 @@ export class  CreateUserDto {
   @IsNumber()
   gender: number
 }
-export class  UpdateUserDto {
+export class UpdateUserDto {
   @IsEmail()
-  email: string;
+  email: string
 
   @IsString()
-  password: string;
+  password: string
 
   @IsString()
   full_name: string
-  
+
   @IsString()
   avatar_url: string
 
@@ -38,11 +38,17 @@ export class  UpdateUserDto {
   @IsNumber()
   gender: number
 }
-export class  SetFollowerUserDto {
+export class SetFollowerUserDto {
   @IsArray()
   followers: string[]
 }
-export class  SetFollowingUserDto {
+export class SetFollowingUserDto {
   @IsArray()
-  email: string[]
+  following: string[]
+}
+export class LoginUser {
+  @IsEmail()
+  email: string
+  @IsString()
+  password: string
 }

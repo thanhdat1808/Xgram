@@ -2,24 +2,27 @@ import { model, Schema, Document } from 'mongoose';
 import { Post } from '@interfaces/posts.interface';
 
 const postSchema: Schema = new Schema({
-  message: {
-    type: String
-  },
-  medias: {
+	message: {
+		type: String
+	},
+	medias: {
 		type: [{
+			media_id: {
+				type: String
+			},
 			url: {
 				type: String
 			},
-			isVideo: {
+			is_video: {
 				type: Boolean
 			}
 		}
 		]
-  },
+	},
 	reactions: {
 		type: [{
-			like: {
-				type: Boolean
+			react_id: {
+				type: String
 			},
 			reacted_by: {
 				type: Schema.Types.ObjectId,
