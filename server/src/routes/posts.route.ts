@@ -27,7 +27,7 @@ class PostsRoute implements Routes {
     // this.router.get(`${this.path}`, this.usersController.getUsers);
     this.router.get(`${this.path}/:id`, this.postsController.getPostById);
     this.router.post(`${this.path}`, validationMiddleware(CreatePostDto, 'body', true), this.upload.array('medias'), this.postsController.createPost);
-    // this.router.put(`${this.path}/:id`, validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
+    this.router.post(`${this.path}/:id`, validationMiddleware(CreatePostDto, 'body', true), this.upload.array('medias'), this.postsController.updatePost);
     this.router.delete(`${this.path}/:id`, this.postsController.deletePost)
   }
 }

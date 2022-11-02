@@ -44,12 +44,26 @@ class PostService {
     }
   }
 
-  public async updatePost(postId: string, postData: CreatePostDto): Promise<Post> {
+  public async updatePost(postId: string, postData: CreatePostDto, newMedias: Express.Multer.File[]): Promise<Post> {
     if (isEmpty(postData)) throw new HttpException(400, 'postData is empty');
+    const medias = Object.assign([], postData.medias)
+    if (newMedias) {
+      newMedias.forEach(element => {
+        const mimetype: string = element['mimetype']
+        const item = {
+          media_id: uuidv4(),
+          url: `${process.env.URL}/uploads/${element['filename']}`,
+          is_video: this.isVideo.includes(mimetype.split('/')[1])
+        }
+        medias.push(item)
+      });
+    }
+    postData.medias = medias
+    console.log('dddddddd', postData);
 
     const updatePostById: Post = await this.posts.findByIdAndUpdate(postId, { postData });
     if (!updatePostById) throw new HttpException(409, "Post doesn't exist");
-
+    console.log('11111', updatePostById);
     return updatePostById;
   }
 

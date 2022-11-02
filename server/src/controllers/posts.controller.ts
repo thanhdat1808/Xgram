@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@dtos/users.dto';
 import { CreatePostDto } from '@/dtos/posts.dto';
 import { Post } from '@interfaces/posts.interface';
 import { User } from '@interfaces/users.interface';
@@ -45,13 +44,14 @@ class PostsController {
     }
   };
 
-  public updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  public updatePost = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId: string = req.params.id;
-      const userData: CreateUserDto = req.body;
-      const updateUserData: User = await this.userService.updateUser(userId, userData);
+      const postId: string = req.params.id;
+      const postData: CreatePostDto = req.body;
+      const newMedias = req.files as Express.Multer.File[]
 
-      res.status(200).json({ data: updateUserData, message: 'updated' });
+      const updatePostData: Post = await this.postService.updatePost(postId, postData, newMedias);
+      res.status(200).json({ data: updatePostData, message: 'updated' });
     } catch (error) {
       next(error);
     }
