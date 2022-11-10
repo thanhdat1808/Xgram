@@ -1,5 +1,5 @@
-import { model, Schema, Document } from 'mongoose';
-import { Message } from '@/interfaces/messages.interface';
+import { model, Schema, Document } from 'mongoose'
+import { Message } from '@/interfaces/messages.interface'
 
 const messageSchema: Schema = new Schema({
   story: {
@@ -22,12 +22,12 @@ const messageSchema: Schema = new Schema({
     min: 0,
     max: 3
   },
-	created_at: {
-		type: Date,
-		default: Date.now
-	}
-});
+  created_at: {
+    type: Date,
+    default: Date.now
+  }
+})
 
-const messageModel = model<Message & Document>('Post', messageSchema);
+const messageModel = model<Message & Document>('Post', messageSchema)
 
-export default messageModel;
+export default messageModel

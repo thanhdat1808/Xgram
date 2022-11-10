@@ -10,12 +10,13 @@ export interface Post {
 		like: boolean,
 		reacted_by: string
 	}]
-	comments: [{
-		comment: string,
-		commented_by: string,
-		created_at: Date
-	}]
+	comments: Comment[]
 	posted: string
 	created_at: Date
 	updated_at: Date
+}
+
+export interface Comment {
+	comment: string,
+	commented_by: string
 }

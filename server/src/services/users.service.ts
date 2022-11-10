@@ -1,83 +1,83 @@
-import { hash } from 'bcrypt';
-import { CreateUserDto, LoginUser } from '@dtos/users.dto';
-import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
-import userModel from '@models/users.model';
-import { isEmpty } from '@utils/util';
+import { hash } from 'bcrypt'
+import { CreateUserDto, LoginUser } from '@dtos/users.dto'
+import { HttpException } from '@exceptions/HttpException'
+import { User } from '@interfaces/users.interface'
+import userModel from '@models/users.model'
+import { isEmpty } from '@utils/util'
 import * as bcrypt from 'bcrypt'
 import * as jwt from 'jsonwebtoken'
 class UserService {
-  public users = userModel;
+  public users = userModel
 
   public async findAllUser(): Promise<User[]> {
-    const users: User[] = await this.users.find();
-    return users;
+    const users: User[] = await this.users.find()
+    return users
   }
 
   public async findUserById(userId: string): Promise<User> {
-    if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty');
+    if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty')
 
-    const findUser: User = await this.users.findOne({ _id: userId });
-    if (!findUser) throw new HttpException(409, "User doesn't exist");
+    const findUser: User = await this.users.findOne({ _id: userId })
+    if (!findUser) throw new HttpException(409, 'User doesn`t exist')
 
-    return findUser;
+    return findUser
   }
 
   public async createUser(userData: CreateUserDto): Promise<User> {
     try {
-      if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
-      const findUser: User = await this.users.findOne({ email: userData.email });
-      if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
-      const hashedPassword = await hash(userData.password, 10);
-      const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
-      return createUserData;
+      if (isEmpty(userData)) throw new HttpException(400, 'userData is empty')
+      const findUser: User = await this.users.findOne({ email: userData.email })
+      if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`)
+      const hashedPassword = await hash(userData.password, 10)
+      const createUserData: User = await this.users.create({ ...userData, password: hashedPassword })
+      return createUserData
     }
     catch (error) {
-      throw new HttpException(500, `Fail to insert DB`);
+      throw new HttpException(500, 'Fail to insert DB')
     }
   }
 
   public async updateUser(userId: string, userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
+    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty')
 
     if (userData.email) {
-      const findUser: User = await this.users.findOne({ email: userData.email });
-      if (findUser && findUser._id != userId) throw new HttpException(409, `This email ${userData.email} already exists`);
+      const findUser: User = await this.users.findOne({ email: userData.email })
+      if (findUser && findUser._id != userId) throw new HttpException(409, `This email ${userData.email} already exists`)
     }
 
     if (userData.password) {
-      const hashedPassword = await hash(userData.password, 10);
-      userData = { ...userData, password: hashedPassword };
+      const hashedPassword = await hash(userData.password, 10)
+      userData = { ...userData, password: hashedPassword }
     }
 
-    const updateUserById: User = await this.users.findByIdAndUpdate(userId, { userData });
-    if (!updateUserById) throw new HttpException(409, "User doesn't exist");
+    const updateUserById: User = await this.users.findByIdAndUpdate(userId, { userData })
+    if (!updateUserById) throw new HttpException(409, 'User doesn\'t exist')
 
-    return updateUserById;
+    return updateUserById
   }
 
   public async deleteUser(userId: string): Promise<User> {
-    const deleteUserById: User = await this.users.findByIdAndDelete(userId);
-    if (!deleteUserById) throw new HttpException(409, "User doesn't exist");
+    const deleteUserById: User = await this.users.findByIdAndDelete(userId)
+    if (!deleteUserById) throw new HttpException(409, 'User doesn\'t exist')
 
-    return deleteUserById;
+    return deleteUserById
   }
 
   public async loginUser(userData: LoginUser): Promise<string> {
     try {
-      const user = await this.users.findOne({ email: userData.email });
-      if (!user) throw new HttpException(422, `User doesn't exist`)
+      const user = await this.users.findOne({ email: userData.email })
+      if (!user) throw new HttpException(422, 'User doesn\'t exist')
 
-      const checkPassword = await bcrypt.compare(userData.password, user.password);
+      const checkPassword = await bcrypt.compare(userData.password, user.password)
 
-      if (!checkPassword) throw new HttpException(422, `Email or Password is not correct`);
+      if (!checkPassword) throw new HttpException(422, 'Email or Password is not correct')
 
-      const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: "100h" });
+      const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: '100h' })
       return token
     } catch (error) {
-      throw new HttpException(500, `Fail to search DB`);
+      throw new HttpException(500, 'Fail to search DB')
     }
   }
 }
 
-export default UserService;
+export default UserService

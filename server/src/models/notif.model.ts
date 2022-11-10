@@ -1,5 +1,5 @@
-import { model, Schema, Document } from 'mongoose';
-import { Notification } from '@/interfaces/notifications.interface'; 
+import { model, Schema, Document } from 'mongoose'
+import { Notification } from '@/interfaces/notifications.interface'
 
 const notifSchema: Schema = new Schema({
   type: {
@@ -23,12 +23,12 @@ const notifSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-	created_at: {
-		type: Date,
-		default: Date.now
-	}
-});
+  created_at: {
+    type: Date,
+    default: Date.now
+  }
+})
 
-const notifModel = model<Notification & Document>('Notification', notifSchema);
+const notifModel = model<Notification & Document>('Notification', notifSchema)
 
-export default notifModel;
+export default notifModel

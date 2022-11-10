@@ -1,5 +1,5 @@
-import { model, Schema, Document } from 'mongoose';
-import { Story } from '@/interfaces/stories.interface';
+import { model, Schema, Document } from 'mongoose'
+import { Story } from '@/interfaces/stories.interface'
 
 const storySchema: Schema = new Schema({
   medias: {

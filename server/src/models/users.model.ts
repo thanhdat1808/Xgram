@@ -1,15 +1,15 @@
-import { model, Schema, Document } from 'mongoose';
-import { User } from '@interfaces/users.interface';
+import { model, Schema, Document } from 'mongoose'
+import { User } from '@interfaces/users.interface'
 
 const userSchema: Schema = new Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   full_name: {
     type: String,
@@ -19,16 +19,16 @@ const userSchema: Schema = new Schema({
     type: String
   },
   bio: {
-    type: String,
+    type: String
   },
   followers: {
     type: [{
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId
     }]
   },
   following: {
     type: [{
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId
     }]
   },
   gender: {
@@ -45,8 +45,8 @@ const userSchema: Schema = new Schema({
     type: Date,
     default: Date.now
   }
-});
+})
 
-const userModel = model<User & Document>('User', userSchema);
+const userModel = model<User & Document>('User', userSchema)
 
-export default userModel;
+export default userModel

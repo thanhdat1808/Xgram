@@ -1,5 +1,5 @@
-import { model, Schema, Document } from 'mongoose';
-import { Post } from '@interfaces/posts.interface';
+import { model, Schema, Document } from 'mongoose'
+import { Post } from '@interfaces/posts.interface'
 
 const postSchema: Schema = new Schema({
 	message: {
@@ -58,8 +58,8 @@ const postSchema: Schema = new Schema({
 		type: Date,
 		default: Date.now
 	}
-});
+})
 
-const postModel = model<Post & Document>('Post', postSchema);
+const postModel = model<Post & Document>('Post', postSchema)
 
-export default postModel;
+export default postModel
