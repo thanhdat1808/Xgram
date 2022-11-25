@@ -1,64 +1,83 @@
-import { NextFunction, Request, Response } from 'express'
-import { CreateUserDto, LoginUser } from '@dtos/users.dto'
+import { Response } from 'express'
+import { CreateUserDto } from '@dtos/users.dto'
 import { User } from '@interfaces/users.interface'
 import userService from '@services/users.service'
-import { statusCode } from '@utils/statuscode'
+import { resError, resSuccess } from '@/utils/custom-response'
+import { RequestWithUser } from '@interfaces/auth.interface'
 
 class UsersController {
   public userService = new userService()
 
-  public getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  public getUsers = async (req: RequestWithUser, res: Response) => {
     try {
       const findAllUsersData: User[] = await this.userService.findAllUser()
-
-      res.status(statusCode.OK).json({ data: findAllUsersData, message: 'findAll' })
+      resSuccess(res, findAllUsersData, 'finAll')
     } catch (error) {
-      next(error)
+      resError(res, error.message, error.code)
     }
   }
 
-  public getUserById = async (req: Request, res: Response, next: NextFunction) => {
+  public getUserById = async (req: RequestWithUser, res: Response) => {
     try {
       const userId: string = req.params.id
       const findOneUserData: User = await this.userService.findUserById(userId)
-
-      res.status(statusCode.OK).json({ data: findOneUserData, message: 'findOne' })
+      resSuccess(res, findOneUserData, 'findOne')
     } catch (error) {
-      next(error)
+      resError(res, error.message, error.code)
     }
   }
 
-  public createUser = async (req: Request, res: Response, next: NextFunction) => {
+  public createUser = async (req: RequestWithUser, res: Response) => {
     try {
       const userData: CreateUserDto = req.body
-      const createUserData: User = await this.userService.createUser(userData)
-
-      res.status(statusCode.CREATED).json({ data: createUserData, message: 'created' })
+      const avatar: Express.Multer.File = req.file      
+      const createUserData: User = await this.userService.createUser(userData, avatar)
+      resSuccess(res, createUserData, 'created')
     } catch (error) {
-      next(error)
+      resError(res, error.message, error.code)
     }
   }
 
-  public updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  public updateUser = async (req: RequestWithUser, res: Response) => {
     try {
       const userId: string = req.params.id
       const userData: CreateUserDto = req.body
       const updateUserData: User = await this.userService.updateUser(userId, userData)
-
-      res.status(200).json({ data: updateUserData, message: 'updated' })
+      resSuccess(res, updateUserData, 'updated')
     } catch (error) {
-      next(error)
+      resError(res, error.message, error.code)
     }
   }
 
-  public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteUser = async (req: RequestWithUser, res: Response) => {
     try {
       const userId: string = req.params.id
       const deleteUserData: User = await this.userService.deleteUser(userId)
-
-      res.status(200).json({ data: deleteUserData, message: 'deleted' })
+      resSuccess(res, deleteUserData, 'deleted')
     } catch (error) {
-      next(error)
+      resError(res, error.message, error.code)
+    }
+  }
+
+  public followUser = async (req: RequestWithUser, res: Response) => {
+    try {
+      const userId: string = req.user._id.valueOf()
+      const followId: string = req.params.id
+      const addFollow: User = await this.userService.followUser(userId, followId)
+      resSuccess(res, addFollow, 'Add success')
+    } catch (error) {
+      resError(res, error.message, error.code)
+    }
+  }
+
+  public unFollowUser = async (req: RequestWithUser, res: Response) => {
+    try {
+      const userId: string = req.user._id.valueOf()
+      const followId: string = req.params.id
+      const addFollow: User = await this.userService.unFollowUser(userId, followId)
+      resSuccess(res, addFollow, 'UnFollow success')
+    } catch (error) {
+      resError(res, error.message, error.code)
     }
   }
 }

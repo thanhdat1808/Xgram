@@ -52,3 +52,9 @@ export class LoginUser {
   @IsString()
   password: string
 }
+export class FollowUser {
+  @IsString()
+  id_user: string
+  @IsString()
+  id_follow: string
+}

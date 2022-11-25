@@ -1,4 +1,4 @@
-import { IsString, IsArray } from 'class-validator'
+import { IsString, IsArray, IsNumber } from 'class-validator'
 
 export type TMedia = {
   media_id: string,
@@ -38,4 +38,18 @@ export class DeleteComment {
   id_post: string
   @IsString()
   id_comment: string
+}
+export class Reaction {
+  @IsString()
+  id_post: string
+  @IsNumber()
+  type: number
+  @IsString()
+  reacted_by: string
+}
+export class UnReaction {
+  @IsString()
+  id_post: string
+  @IsString()
+  reacted_by: string
 }

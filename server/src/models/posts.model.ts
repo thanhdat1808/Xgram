@@ -21,9 +21,6 @@ const postSchema: Schema = new Schema({
 	},
 	reactions: {
 		type: [{
-			react_id: {
-				type: String
-			},
 			reacted_by: {
 				type: Schema.Types.ObjectId,
 				ref: 'User'

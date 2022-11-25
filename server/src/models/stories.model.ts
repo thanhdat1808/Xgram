@@ -4,9 +4,6 @@ import { Story } from '@/interfaces/stories.interface'
 const storySchema: Schema = new Schema({
   medias: {
     type: [{
-      media_id: {
-        type: String
-      },
       url: {
         type: String
       },
@@ -39,6 +36,6 @@ const storySchema: Schema = new Schema({
   }
 })
 
-const storyModel = model<Story & Document>('User', storySchema)
+const storyModel = model<Story & Document>('Stories', storySchema)
 
 export default storyModel

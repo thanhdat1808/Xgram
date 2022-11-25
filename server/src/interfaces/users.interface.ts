@@ -5,6 +5,7 @@ export interface User {
   password: string
   full_name: string
   avatar_url: string
+  cover_url: string
   bio: string
   followers: []
   following: []

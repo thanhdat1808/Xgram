@@ -18,6 +18,9 @@ const userSchema: Schema = new Schema({
   avatar_url: {
     type: String
   },
+  cover_url: {
+    type: String
+  },
   bio: {
     type: String
   },

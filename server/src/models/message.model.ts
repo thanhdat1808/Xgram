@@ -28,6 +28,6 @@ const messageSchema: Schema = new Schema({
   }
 })
 
-const messageModel = model<Message & Document>('Post', messageSchema)
+const messageModel = model<Message & Document>('Message', messageSchema)
 
 export default messageModel

@@ -7,7 +7,7 @@ export interface Post {
 		isVideo: boolean
 	}]
 	reactions: [{
-		like: boolean,
+		type: number,
 		reacted_by: string
 	}]
 	comments: Comment[]
@@ -19,4 +19,8 @@ export interface Post {
 export interface Comment {
 	comment: string,
 	commented_by: string
+}
+export interface Reaction {
+	type: number,
+	reacted_by: string
 }
