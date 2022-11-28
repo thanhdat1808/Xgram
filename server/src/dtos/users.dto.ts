@@ -24,13 +24,13 @@ export class UpdateUserDto {
   email: string
 
   @IsString()
-  password: string
-
-  @IsString()
   full_name: string
 
   @IsString()
   avatar_url: string
+
+  @IsString()
+  cover_url: string
 
   @IsString()
   bio: string
@@ -57,4 +57,10 @@ export class FollowUser {
   id_user: string
   @IsString()
   id_follow: string
+}
+export class PasswordDto {
+  @IsString()
+  old_password: string
+  @IsString()
+  new_password: string
 }

@@ -1,6 +1,6 @@
 import { HttpException } from '@exceptions/HttpException'
 import { CreatePostDto, UpdatePostDto, AddComment, EditComment } from '@/dtos/posts.dto'
-import { Comment, Post, Reaction } from '@interfaces/posts.interface'
+import { Comment, CommentFormat, Post, PostFormat, Reaction } from '@interfaces/posts.interface'
 import postModel from '@models/posts.model'
 import userModel from '@/models/users.model'
 import { isEmpty } from '@utils/util'
@@ -10,13 +10,12 @@ import { CustomError } from '@/utils/custom-error'
 class PostService {
   public posts = postModel
   public users = userModel
-  public isVideo = ['avi', 'mp4', 'mkv', 'wmv', 'vob', 'flv', 'dlvx']
-  public populate = ['posted', 'comments.commented_by', 'reactions.reacted_by']
+  public populate = ['posted_by', 'comments.commented_by', 'reactions.reacted_by']
 
-  public async findPostById(postId: string): Promise<Post> {
+  public async findPostById(postId: string): Promise<PostFormat> {
     try {
       if (isEmpty(postId)) throw new HttpException(400, 'postId is empty')
-      const findPost: Post = await this.posts.findById(postId).populate(this.populate)
+      const findPost: PostFormat = await this.posts.findById(postId).populate(this.populate)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
       return findPost
     } catch (error) {
@@ -24,12 +23,12 @@ class PostService {
     }
   }
 
-  public async getPostFollow(userId: string): Promise<Post[]> {
+  public async getPostFollow(userId: string): Promise<PostFormat[]> {
     try {
       if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty')
-      const findUser: User = await this.users.findOne({_id: userId})
+      const findUser: User = await this.users.findById(userId)
       if(!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
-      const findPost: Post[] = await this.posts.find({ posted: {$in: findUser.following} }).populate(this.populate)
+      const findPost: PostFormat[] = await this.posts.find({ posted_by: {$in: findUser.following} }).populate(this.populate)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
       return findPost
     } catch (error) {
@@ -40,7 +39,7 @@ class PostService {
   public async createPost(postData: CreatePostDto) {
     try {
       if (isEmpty(postData)) throw new HttpException(400, 'postData is empty')
-      const createPost: Post = await this.posts.create({ ...postData })
+      const createPost: PostFormat = await (await this.posts.create({ ...postData })).populate(this.populate)
       return createPost
     }
     catch (error) {
@@ -48,9 +47,9 @@ class PostService {
     }
   }
 
-  public async updatePost(postId: string, postData: UpdatePostDto): Promise<Post> {
+  public async updatePost(postId: string, postData: UpdatePostDto): Promise<PostFormat> {
     if (isEmpty(postData)) throw new HttpException(400, 'postData is empty')
-    const updatePostById: Post = await this.posts.findByIdAndUpdate(postId, { postData, message: postData.message })
+    const updatePostById: PostFormat = await this.posts.findByIdAndUpdate(postId, { ...postData, updated_at: Date.now() }, {new: true}).populate(this.populate)
     if (!updatePostById) throw new HttpException(409, 'Post doesn\'t exist')
     return updatePostById
   }
@@ -65,9 +64,9 @@ class PostService {
     }
   }
 
-  public async getComment(postId: string): Promise<Comment[]> {
+  public async getComment(postId: string): Promise<CommentFormat[]> {
     try {
-      const findPost: Post = await this.posts.findOne({ _id: postId })
+      const findPost: PostFormat = await this.posts.findOne({ _id: postId }).populate(this.populate)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
       return findPost.comments
     } catch (error) {
@@ -75,7 +74,7 @@ class PostService {
     }
   }
 
-  public async addComment(commentData: AddComment): Promise<Post> {
+  public async addComment(commentData: AddComment): Promise<PostFormat> {
     try {
       const findPost: Post = await this.posts.findById(commentData.id_post)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
@@ -85,26 +84,26 @@ class PostService {
       }
       findPost.comments.push(newComment)
       await this.posts.findByIdAndUpdate(commentData.id_post, { comments: findPost.comments })
-      const posts: Post = await this.posts.findById(commentData.id_post)
+      const posts: PostFormat = await this.posts.findById(commentData.id_post).populate(this.populate)
       return posts
     } catch (error) {
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
-  public async editComment(postId: string, dataUpdate: EditComment): Promise<Post> {
+  public async editComment(postId: string, commentId: string, dataUpdate: EditComment): Promise<PostFormat> {
     try {
-      const postUpdate: Post = await this.posts.findOneAndUpdate(
+      const postUpdate: PostFormat = await this.posts.findOneAndUpdate(
         {
           _id: postId,
           comments: {
-            $elemMatch: { _id: dataUpdate.id_comment }
+            $elemMatch: { _id: commentId }
           }
         }, {
         $set: {
           'comments.$.comment': dataUpdate.comment
         }
-      }, { new: true, safe: true, upsert: true })
+      }, { new: true, safe: true, upsert: true }).populate(this.populate)
       if (!postUpdate) throw new HttpException(409, 'Post doesn\'t exist')
       return postUpdate
     } catch (error) {
@@ -127,7 +126,7 @@ class PostService {
       throw new HttpException(500, error.message)
     }
   }
-  public async reaction(postId: string, react_type: number, reacted_by: string): Promise<Post> {
+  public async reaction(postId: string, react_type: number, reacted_by: string): Promise<PostFormat> {
     try {
       const findPost: Post = await this.posts.findById(postId)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
@@ -141,23 +140,23 @@ class PostService {
       }
       else throw new HttpException(statusCode.CONFLICT, 'User is exited')
       await this.posts.findByIdAndUpdate(postId, { reactions: findPost.reactions })
-      const posts: Post = await this.posts.findById(postId)
+      const posts: PostFormat = await this.posts.findById(postId).populate(this.populate)
       return posts
     } catch (error) {
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
-  public async unReaction(postId: string, reacted_by: string): Promise<Post> {
+  public async unReaction(postId: string, reacted_by: string): Promise<PostFormat> {
     try {
-      const post: Post = await this.posts.findOneAndUpdate(
+      const post: PostFormat = await this.posts.findOneAndUpdate(
         {
           _id: postId
         }, {
         $pull: {
           reactions: { reacted_by: reacted_by }
         }
-      }, { new: true })
+      }, { new: true }).populate(this.populate)
       return post
     } catch (error) {
       throw new HttpException(500, error.message)

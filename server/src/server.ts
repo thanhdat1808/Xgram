@@ -5,9 +5,10 @@ import UsersRoute from '@routes/users.route'
 import PostsRoute from '@routes/posts.route'
 import validateEnv from '@utils/validateEnv'
 import UploadsRoute from '@routes/upload.route'
+import StoriesRoute from '@routes/stories.route'
 
 validateEnv()
 
-const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute(), new PostsRoute(), new UploadsRoute()])
+const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute(), new PostsRoute(), new UploadsRoute(), new StoriesRoute()])
 
 app.listen()

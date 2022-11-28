@@ -1,20 +1,14 @@
 import { model, Schema, Document } from 'mongoose'
 import { Story } from '@/interfaces/stories.interface'
 
-const storySchema: Schema = new Schema({
+const storiesSchema: Schema = new Schema({
   medias: {
     type: [{
       url: {
         type: String
       },
-      isVideo: {
+      is_video: {
         type: Boolean
-      },
-      rotation: {
-        type: Number
-      },
-      scale: {
-        type: Number
       },
       created_at: {
         type: Date,
@@ -36,6 +30,6 @@ const storySchema: Schema = new Schema({
   }
 })
 
-const storyModel = model<Story & Document>('Stories', storySchema)
+const storiesModel = model<Story & Document>('Stories', storiesSchema)
 
-export default storyModel
+export default storiesModel

@@ -1,5 +1,5 @@
-import { hash } from 'bcrypt'
-import { CreateUserDto, LoginUser } from '@dtos/users.dto'
+import { compare, hash } from 'bcrypt'
+import { LoginUser, PasswordDto, UpdateUserDto } from '@dtos/users.dto'
 import { User } from '@interfaces/users.interface'
 import userModel from '@models/users.model'
 import { isEmpty } from '@utils/util'
@@ -9,7 +9,7 @@ import { CustomError } from '@/utils/custom-error'
 import { statusCode } from '@/utils/statuscode'
 class UserService {
   public users = userModel
-
+  public populate = ['followers', 'following']
   public async findAllUser(): Promise<User[]> {
     const users: User[] = await this.users.find()
     return users
@@ -17,41 +17,30 @@ class UserService {
 
   public async findUserById(userId: string): Promise<User> {
     if (isEmpty(userId)) throw new CustomError('UserId is empty', {}, statusCode.BAD_REQUEST)
-    const findUser: User = await this.users.findOne({ _id: userId })
+    const findUser: User = await this.users.findOne({ _id: userId }).populate(this.populate)
     if (!findUser) throw new CustomError('User doesn`t exist', {}, statusCode.CONFLICT)
     return findUser
   }
 
-  public async createUser(userData: CreateUserDto, avatar: Express.Multer.File): Promise<User> {
-    try {
-      if (isEmpty(userData)) throw new CustomError('UserId is empty', {}, statusCode.BAD_REQUEST)
-      const findUser: User = await this.users.findOne({ email: userData.email })
-      if (findUser) throw new CustomError(`This email ${userData.email} already exists`, {}, statusCode.CONFLICT)
-      const hashedPassword = await hash(userData.password, 10)
-      const avatar_url = `${process.env.URL}/avatars/${avatar['filename']}`
-      const createUserData: User = await this.users.create({ ...userData, password: hashedPassword, avatar_url: avatar_url })
-      return createUserData
-    } catch (error) {
-      throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
-    }
+  public async updatePassword(userId: string, dataPassword: PasswordDto) {
+    if (isEmpty(dataPassword)) throw new CustomError('Data is empty', {}, statusCode.BAD_REQUEST)
+    const userData: User = await this.users.findById(userId)
+    if(!userData) throw new CustomError('User doesn\'t exist', {}, statusCode.BAD_REQUEST)
+    const isPasswordMatching: boolean = await compare(dataPassword.old_password, userData.password)
+    if (!isPasswordMatching) throw new CustomError('Password is not matching', {}, statusCode.CONFLICT)
+    const hashedPassword = await hash(dataPassword.new_password, 10)
+    const updateUser: User = await this.users.findOneAndUpdate({ _id: userId }, { password: hashedPassword, updated_at: Date.now() }, { new: true })
+    return updateUser
   }
 
-  public async updateUser(userId: string, userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new CustomError('UserId is empty', {}, statusCode.BAD_REQUEST)
-
+  public async updateUser(userId: string, userData: UpdateUserDto): Promise<User> {
+    if (isEmpty(userData)) throw new CustomError('Data is empty', {}, statusCode.BAD_REQUEST)
     if (userData.email) {
       const findUser: User = await this.users.findOne({ email: userData.email })
       if (findUser && findUser._id != userId) throw new CustomError(`This email ${userData.email} already exists`, {}, statusCode.CONFLICT)
     }
-
-    if (userData.password) {
-      const hashedPassword = await hash(userData.password, 10)
-      userData = { ...userData, password: hashedPassword }
-    }
-
-    const updateUserById: User = await this.users.findByIdAndUpdate(userId, { userData })
+    const updateUserById: User = await this.users.findOneAndUpdate({ _id: userId }, { ...userData, updated_at: Date.now() }, { new: true}).populate(this.populate)
     if (!updateUserById) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
-
     return updateUserById
   }
 

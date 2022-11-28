@@ -1,17 +1,18 @@
 import { IsString, IsArray, IsNumber } from 'class-validator'
 
 export type TMedia = {
-  media_id: string,
+  _id: string,
   url: string,
-  is_video: boolean
+  is_video: boolean,
+  created_at: Date
 }
 export class CreatePostDto {
   @IsString()
   message: string
   @IsArray()
-  medias: []
+  medias: TMedia[]
   @IsString()
-  posted: string
+  posted_by: string
 }
 export class UpdatePostDto {
   @IsString()
@@ -28,8 +29,6 @@ export class AddComment {
   comment_by: string
 }
 export class EditComment {
-  @IsString()
-  id_comment: string
   @IsString()
   comment: string
 }

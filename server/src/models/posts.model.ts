@@ -7,9 +7,6 @@ const postSchema: Schema = new Schema({
 	},
 	medias: {
 		type: [{
-			media_id: {
-				type: String
-			},
 			url: {
 				type: String
 			},
@@ -42,7 +39,7 @@ const postSchema: Schema = new Schema({
 			}
 		}]
 	},
-	posted: {
+	posted_by: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
 		require: true

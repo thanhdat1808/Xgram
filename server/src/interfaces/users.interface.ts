@@ -7,6 +7,7 @@ export interface User {
   avatar_url: string
   cover_url: string
   bio: string
+  websites: []
   followers: []
   following: []
   gender: number

@@ -26,12 +26,14 @@ const userSchema: Schema = new Schema({
   },
   followers: {
     type: [{
-      type: Schema.Types.ObjectId
+      type: Schema.Types.ObjectId,
+      ref: 'User'
     }]
   },
   following: {
     type: [{
-      type: Schema.Types.ObjectId
+      type: Schema.Types.ObjectId,
+      ref: 'User'
     }]
   },
   gender: {
@@ -39,6 +41,9 @@ const userSchema: Schema = new Schema({
     require: true,
     min: 0,
     max: 1
+  },
+  websites: {
+    type: []
   },
   created_at: {
     type: Date,

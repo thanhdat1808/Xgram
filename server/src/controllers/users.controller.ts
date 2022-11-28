@@ -1,9 +1,10 @@
 import { Response } from 'express'
-import { CreateUserDto } from '@dtos/users.dto'
+import { PasswordDto, UpdateUserDto } from '@dtos/users.dto'
 import { User } from '@interfaces/users.interface'
 import userService from '@services/users.service'
 import { resError, resSuccess } from '@/utils/custom-response'
 import { RequestWithUser } from '@interfaces/auth.interface'
+import { formatUser } from '@/utils/formatData'
 
 class UsersController {
   public userService = new userService()
@@ -21,18 +22,7 @@ class UsersController {
     try {
       const userId: string = req.params.id
       const findOneUserData: User = await this.userService.findUserById(userId)
-      resSuccess(res, findOneUserData, 'findOne')
-    } catch (error) {
-      resError(res, error.message, error.code)
-    }
-  }
-
-  public createUser = async (req: RequestWithUser, res: Response) => {
-    try {
-      const userData: CreateUserDto = req.body
-      const avatar: Express.Multer.File = req.file      
-      const createUserData: User = await this.userService.createUser(userData, avatar)
-      resSuccess(res, createUserData, 'created')
+      resSuccess(res, formatUser(findOneUserData), 'findOne')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -40,10 +30,10 @@ class UsersController {
 
   public updateUser = async (req: RequestWithUser, res: Response) => {
     try {
-      const userId: string = req.params.id
-      const userData: CreateUserDto = req.body
+      const userId: string = req.user._id
+      const userData: UpdateUserDto = req.body
       const updateUserData: User = await this.userService.updateUser(userId, userData)
-      resSuccess(res, updateUserData, 'updated')
+      resSuccess(res, formatUser(updateUserData), 'updated')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -53,7 +43,7 @@ class UsersController {
     try {
       const userId: string = req.params.id
       const deleteUserData: User = await this.userService.deleteUser(userId)
-      resSuccess(res, deleteUserData, 'deleted')
+      resSuccess(res, formatUser(deleteUserData), 'deleted')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -64,7 +54,7 @@ class UsersController {
       const userId: string = req.user._id.valueOf()
       const followId: string = req.params.id
       const addFollow: User = await this.userService.followUser(userId, followId)
-      resSuccess(res, addFollow, 'Add success')
+      resSuccess(res, formatUser(addFollow), 'Add success')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -75,7 +65,18 @@ class UsersController {
       const userId: string = req.user._id.valueOf()
       const followId: string = req.params.id
       const addFollow: User = await this.userService.unFollowUser(userId, followId)
-      resSuccess(res, addFollow, 'UnFollow success')
+      resSuccess(res, formatUser(addFollow), 'UnFollow success')
+    } catch (error) {
+      resError(res, error.message, error.code)
+    }
+  }
+
+  public updatePassword = async (req: RequestWithUser, res: Response) => {
+    try {
+      const userId = req.user._id.valueOf()
+      const dataPassword: PasswordDto = req.body
+      const updatePassword: User = await this.userService.updatePassword(userId, dataPassword)
+      resSuccess(res, formatUser(updatePassword), 'updated')
     } catch (error) {
       resError(res, error.message, error.code)
     }

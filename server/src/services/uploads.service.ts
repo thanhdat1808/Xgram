@@ -13,7 +13,6 @@ class UploadService {
       files.forEach(element => {
         const mimetype: string = element['mimetype']
         const item = {
-          media_id: uuidv4(),
           url: `${process.env.URL}/uploads/${element['filename']}`,
           is_video: this.isVideo.includes(mimetype.split('/')[1])
         }

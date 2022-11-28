@@ -9,8 +9,6 @@ class UploadsController {
   public upload = async (req: RequestWithUser, res: Response) => {
     try {
       const files = req.files as Express.Multer.File[]
-      console.log(files)
-      
       const resData = await this.uploadService.uploads(files)
       resSuccess(res, resData, 'Upload success')
     } catch (error) {

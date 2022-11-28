@@ -20,7 +20,7 @@ class PostsRoute implements Routes {
     this.router.delete(`${this.path}/:id`, authMiddleware, this.postsController.deletePost)
     this.router.get(`${this.path}/comments/:id`, authMiddleware, this.postsController.getCommentPost)
     this.router.post(`${this.path}/comments/create`, authMiddleware, validationMiddleware(AddComment, 'body'), this.postsController.addCommentPost)
-    this.router.post(`${this.path}/comments/:id`, authMiddleware, validationMiddleware(EditComment, 'body'), this.postsController.editCommentPost)
+    this.router.post(`${this.path}/:post_id/comments/:comment_id`, authMiddleware, validationMiddleware(EditComment, 'body'), this.postsController.editCommentPost)
     this.router.post(`${this.path}/comments/delete`, authMiddleware, validationMiddleware(DeleteComment, 'body'), this.postsController.deleteCommentsPost)
     this.router.post(`${this.path}/reaction/like`, authMiddleware, validationMiddleware(Reaction, 'body'), this.postsController.reaction)
     this.router.post(`${this.path}/reaction/unlike`, authMiddleware, validationMiddleware(UnReaction, 'body'), this.postsController.unReaction)

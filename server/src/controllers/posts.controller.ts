@@ -1,12 +1,11 @@
 import { Response } from 'express'
 import { AddComment, CreatePostDto, EditComment, UpdatePostDto } from '@/dtos/posts.dto'
-import { Post, Comment } from '@interfaces/posts.interface'
-import { User } from '@interfaces/users.interface'
+import { Post, PostFormat, CommentFormat } from '@interfaces/posts.interface'
 import userService from '@services/users.service'
 import postService from '@services/posts.service'
 import { resError, resSuccess } from '@/utils/custom-response'
-import { statusCode } from '@/utils/statuscode'
 import { RequestWithUser } from '@interfaces/auth.interface'
+import { formatComment, formatPost } from '@/utils/formatData'
 
 class PostsController {
   public userService = new userService()
@@ -15,8 +14,8 @@ class PostsController {
     public getPostFollow = async (req: RequestWithUser, res: Response) => {
       try {
         const userId: string = req.user._id.valueOf()
-        const findOnePostData: Post[] = await this.postService.getPostFollow(userId)
-        resSuccess(res, findOnePostData, 'Get posts')
+        const findOnePostData: PostFormat[] = await this.postService.getPostFollow(userId)
+        resSuccess(res, findOnePostData.map(post => formatPost(post)), 'Get posts')
       } catch (error) {
         resError(res, error.message, error.code)
       }
@@ -25,8 +24,8 @@ class PostsController {
   public getPostById = async (req: RequestWithUser, res: Response) => {
     try {
       const postId: string = req.params.id
-      const findOnePostData: Post = await this.postService.findPostById(postId)
-      resSuccess(res, findOnePostData, 'finOne')
+      const findOnePostData: PostFormat = await this.postService.findPostById(postId)
+      resSuccess(res, formatPost(findOnePostData), 'finOne')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -36,10 +35,10 @@ class PostsController {
     try {
       const postData: CreatePostDto = {
         ...req.body,
-        medias: req.files
+        posted_by: req.user._id
       }
-      const createPost = await this.postService.createPost(postData)
-      resSuccess(res, createPost, 'created')
+      const createPost: PostFormat = await this.postService.createPost(postData)
+      resSuccess(res, formatPost(createPost), 'created')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -49,8 +48,8 @@ class PostsController {
     try {
       const postId: string = req.params.id
       const postData: UpdatePostDto = req.body
-      const updatePostData: Post = await this.postService.updatePost(postId, postData)
-      resSuccess(res, updatePostData, 'updated')
+      const updatePostData: PostFormat = await this.postService.updatePost(postId, postData)
+      resSuccess(res, formatPost(updatePostData as unknown as PostFormat), 'updated')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -69,8 +68,8 @@ class PostsController {
   public getCommentPost = async (req: RequestWithUser, res: Response) => {
     try {
       const postId: string = req.params.id
-      const commentPost: Comment[] = await this.postService.getComment(postId)
-      resSuccess(res, commentPost, '')
+      const commentPost: CommentFormat[] = await this.postService.getComment(postId)
+      resSuccess(res, commentPost.map(comment => formatComment(comment)), 'Get comment')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -79,8 +78,8 @@ class PostsController {
   public addCommentPost = async (req: RequestWithUser, res: Response) => {
     try {
       const dataComment: AddComment = req.body
-      const addComment: Post = await this.postService.addComment(dataComment)
-      return res.status(statusCode.OK).json({ data: addComment })
+      const addComment: PostFormat = await this.postService.addComment(dataComment)
+      resSuccess(res, formatPost(addComment), 'Add success')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -88,10 +87,11 @@ class PostsController {
 
   public editCommentPost = async (req: RequestWithUser, res: Response) => {
     try {
-      const postId: string = req.params.id
+      const postId: string = req.params.post_id
+      const commentId: string = req.params.comment_id
       const dataUpdate: EditComment = req.body
-      const postUpdate: Post = await this.postService.editComment(postId, dataUpdate)
-      return res.status(statusCode.OK).json({ data: postUpdate })
+      const postUpdate: PostFormat = await this.postService.editComment(postId, commentId, dataUpdate)
+      resSuccess(res, formatPost(postUpdate), 'Update')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -113,8 +113,8 @@ class PostsController {
       const postId: string = req.body.id_post
       const react_type: number = req.body.type
       const reacted_by: string = req.body.reacted_by
-      const post: Post = await this.postService.reaction(postId, react_type, reacted_by)
-      return res.status(statusCode.OK).json({ data: post })
+      const post: PostFormat = await this.postService.reaction(postId, react_type, reacted_by)
+      resSuccess(res, formatPost(post), 'Success')
     } catch (error) {
       resError(res, error.message, error.code)
     }
@@ -124,8 +124,8 @@ class PostsController {
     try {
       const postId: string = req.body.id_post
       const reacted_by: string = req.body.reacted_by
-      const postData: Post = await this.postService.unReaction(postId, reacted_by)
-      res.status(200).json({ data: postData, message: 'Success' })
+      const postData: PostFormat = await this.postService.unReaction(postId, reacted_by)
+      resSuccess(res, formatPost(postData), 'un reaction')
     } catch (error) {
       resError(res, error.message, error.code)
     }
