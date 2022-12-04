@@ -10,7 +10,43 @@ import { CustomError } from '@/utils/custom-error'
 class PostService {
   public posts = postModel
   public users = userModel
-  public populate = ['posted_by', 'comments.commented_by', 'reactions.reacted_by']
+  public populate = [{
+    path: 'posted_by',
+    populate: [
+      {
+        path: 'followers',
+        model: 'User'
+      },
+      {
+        path: 'following',
+        model: 'User'
+      }
+    ]
+  }, {
+    path: 'comments.commented_by',
+    populate: [
+      {
+        path: 'followers',
+        model: 'User'
+      },
+      {
+        path: 'following',
+        model: 'User'
+      }
+    ]
+  }, {
+    path: 'reactions.reacted_by',
+    populate: [
+      {
+        path: 'followers',
+        model: 'User'
+      },
+      {
+        path: 'following',
+        model: 'User'
+      }
+    ]
+  }]
 
   public async findPostById(postId: string): Promise<PostFormat> {
     try {

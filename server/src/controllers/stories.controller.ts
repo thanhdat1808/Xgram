@@ -69,7 +69,6 @@ class StoriesController {
     try {
       const storyId: string = req.params.id
       const mediaId: string = req.params.media_id
-      console.log(storyId, mediaId)
       const deletePostData: StoryFormat = await this.storiesService.deleteStoriesMedia(storyId, mediaId)
       resSuccess(res, formatStories(deletePostData), 'deleted')
     } catch (error) {

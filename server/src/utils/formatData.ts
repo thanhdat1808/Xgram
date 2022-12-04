@@ -1,4 +1,6 @@
 import { TMedia } from '@/dtos/posts.dto'
+import { ConversationFormatInterface } from '@/interfaces/conversations.interface'
+import { MessageFormatInterface } from '@/interfaces/messages.interface'
 import { CommentFormat, PostFormat } from '@/interfaces/posts.interface'
 import { StoryFormat } from '@/interfaces/stories.interface'
 import { User } from '@/interfaces/users.interface'
@@ -7,7 +9,6 @@ const formatFollow = (user: User) => {
   return {
     user_id: user._id,
     email: user.email,
-    password: user.password,
     full_name: user.full_name,
     avatar_url: user.avatar_url,
     cover_url: user.cover_url,
@@ -40,7 +41,6 @@ export const formatUser = (user: User) => {
   return {
     user_id: user._id,
     email: user.email,
-    password: user.password,
     full_name: user.full_name,
     avatar_url: user.avatar_url,
     cover_url: user.cover_url,
@@ -59,7 +59,7 @@ export const formatPost = (post: PostFormat) => {
     message: post.message,
     medias: post.medias.map(media => formatMedia(media)),
     posted_by: formatUser(post.posted_by),
-    reactions: post.reactions.map(reaction => formatUser(reaction.reacted_by)),
+    reactions: post.reactions.map(reaction => ({reacted_by: formatUser(reaction.reacted_by)})),
     comments: post.comments.map(comment => formatComment(comment as unknown as CommentFormat)),
     created_at: post.created_at,
     updated_at: post.updated_at
@@ -72,5 +72,23 @@ export const formatStories = (story: StoryFormat) => {
     posted_by: formatUser(story.posted_by),
     created_at: story.created_at,
     updated_at: story.updated_at
+  }
+}
+export const formatMessage = (message: MessageFormatInterface) => {
+  return {
+    message_id: message._id,
+    message: message.message,
+    status: message.status,
+    type: message.type,
+    sent_by: formatUser(message.sent_by)
+  }
+}
+export const formatConversation = (conversation: ConversationFormatInterface) => {
+  return {
+    conversation_id: conversation._id,
+    last_message: formatMessage(conversation.last_message),
+    user: formatUser(conversation.user),
+    created_at: conversation.created_at,
+    updated_at: conversation.updated_at
   }
 }

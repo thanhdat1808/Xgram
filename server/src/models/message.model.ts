@@ -1,26 +1,22 @@
 import { model, Schema, Document } from 'mongoose'
-import { Message } from '@/interfaces/messages.interface'
+import { MessageInterface } from '@/interfaces/messages.interface'
 
 const messageSchema: Schema = new Schema({
-  story: {
+  message: {
     type: String
   },
-  post: {
-    type: String
-  },
-  react_type: {
-    type: Number
-  },
-  seen: {
-    type: Boolean
-  },
-  remove: {
-    type: Boolean
+  status: {
+    type: Number,
+    max: 3,
+    min: 0
   },
   type: {
-    type: Number,
-    min: 0,
-    max: 3
+    type: String,
+    enum: ['text', 'sticker', 'image', 'video']
+  },
+  sent_by: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   },
   created_at: {
     type: Date,
@@ -28,6 +24,6 @@ const messageSchema: Schema = new Schema({
   }
 })
 
-const messageModel = model<Message & Document>('Message', messageSchema)
+const messageModel = model<MessageInterface & Document>('Message', messageSchema)
 
 export default messageModel

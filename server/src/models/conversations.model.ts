@@ -1,5 +1,5 @@
 import { model, Schema, Document } from 'mongoose'
-import { Message } from '@/interfaces/messages.interface'
+import { MessageInterface } from '@/interfaces/messages.interface'
 
 const conversationsSchema: Schema = new Schema({
   last_message: {
@@ -20,6 +20,6 @@ const conversationsSchema: Schema = new Schema({
   }
 })
 
-const conversationsModel = model<Message & Document>('Conversation', conversationsSchema)
+const conversationsModel = model<MessageInterface & Document>('Conversation', conversationsSchema)
 
 export default conversationsModel

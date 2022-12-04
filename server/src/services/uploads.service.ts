@@ -1,6 +1,5 @@
 import { HttpException } from '@exceptions/HttpException'
 import { isEmpty } from '@utils/util'
-import { v4 as uuidv4 } from 'uuid'
 import { statusCode } from '@/utils/statuscode'
 import { CustomError } from '@/utils/custom-error'
 class UploadService {

@@ -1,10 +1,16 @@
-export interface Message {
+import { User } from './users.interface'
+
+export interface MessageInterface {
+  message_id: string
+  message: string
+  status: number
+  type: 'text'|'image'|'sticker'|'video'
+  sent_by: string
+}
+export interface MessageFormatInterface {
   _id: string
-  story: string
-  post: string
-  react_type: number
-  seen: boolean
-  removed: boolean
-  type: number
-  created_at: Date
+  message: string
+  status: number
+  type: 'text'|'image'|'sticker'|'video'
+  sent_by: User
 }

@@ -10,7 +10,19 @@ import { CreateStories } from '@/dtos/stories.dto'
 class StoriesService {
   public stories = storiesModel
   public users = userModel
-  public populate = ['posted_by']
+  public populate = {
+    path: 'posted_by',
+    populate: [
+      {
+        path: 'followers',
+        model: 'User'
+      },
+      {
+        path: 'following',
+        model: 'User'
+      }
+    ]
+  }
 
   public async getStoriesById(storyId: string): Promise<StoryFormat> {
     try {
@@ -39,7 +51,6 @@ class StoriesService {
   public async createStories(storiesData: CreateStories) {
     try {
       if (isEmpty(storiesData)) throw new HttpException(400, 'Data is empty')
-      console.log('1111111', storiesData)
       const createStories: StoryFormat = await (await this.stories.create({ ...storiesData })).populate(this.populate)
       return createStories
     }
