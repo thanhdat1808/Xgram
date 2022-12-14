@@ -11,6 +11,9 @@ const userSchema: Schema = new Schema({
     type: String,
     required: true
   },
+  reset_password: {
+    type: String
+  },
   full_name: {
     type: String,
     require: true
@@ -23,6 +26,12 @@ const userSchema: Schema = new Schema({
   },
   bio: {
     type: String
+  },
+  phone_number: {
+    type: Number
+  },
+  date_of_birth: {
+    type: Date
   },
   followers: {
     type: [{
@@ -44,6 +53,12 @@ const userSchema: Schema = new Schema({
   },
   websites: {
     type: []
+  },
+  blocked_users: {
+    type: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }]
   },
   created_at: {
     type: Date,

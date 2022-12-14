@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsNumber, IsArray } from 'class-validator'
+import { IsEmail, IsString, IsNumber, IsArray, IsDate } from 'class-validator'
 
 export class CreateUserDto {
   @IsEmail()
@@ -18,6 +18,12 @@ export class CreateUserDto {
 
   @IsNumber()
   gender: number
+
+  @IsNumber()
+  phone_number: number
+
+  @IsDate()
+  date_of_birth: Date
 }
 export class UpdateUserDto {
   @IsEmail()
@@ -37,6 +43,12 @@ export class UpdateUserDto {
 
   @IsNumber()
   gender: number
+
+  @IsNumber()
+  phone_number: number
+
+  @IsDate()
+  date_of_birth: Date
 }
 export class SetFollowerUserDto {
   @IsArray()
@@ -63,4 +75,8 @@ export class PasswordDto {
   old_password: string
   @IsString()
   new_password: string
+}
+export class ForgotPassword {
+  @IsEmail()
+  email: string
 }

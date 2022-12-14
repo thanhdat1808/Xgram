@@ -1,27 +1,31 @@
 import { model, Schema, Document } from 'mongoose'
 import { Notification } from '@/interfaces/notifications.interface'
 
-const notifSchema: Schema = new Schema({
+const notificationsSchema: Schema = new Schema({
   type: {
-    type: Number,
-    min: 0,
-    max: 3
-  },
-  post: {
-    type: String
-  },
-  comment: {
-    type: String
-  },
-  story: {
-    type: String
-  },
-  user_id: {
-    type: String
+    type: String,
+    enum: ['react', 'follow', 'comment'],
+    require: true
   },
   user: {
     type: Schema.Types.ObjectId,
+    ref: 'User',
+    require: true
+  },
+  ref_post: {
+    type: Schema.Types.ObjectId,
+    ref: 'Post'
+  },
+  ref_user: {
+    type: Schema.Types.ObjectId,
     ref: 'User'
+  },
+  ref_comment: {
+    type: Schema.Types.ObjectId,
+    ref: 'Comment'
+  },
+  post_id: {
+    type: String
   },
   created_at: {
     type: Date,
@@ -29,6 +33,6 @@ const notifSchema: Schema = new Schema({
   }
 })
 
-const notifModel = model<Notification & Document>('Notification', notifSchema)
+const notificationModel = model<Notification & Document>('Notification', notificationsSchema)
 
-export default notifModel
+export default notificationModel

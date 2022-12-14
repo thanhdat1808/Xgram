@@ -8,8 +8,8 @@ export const resSuccess = (res: Response, data: Object, message: string) => {
     data: data
   })
 }
-export const resError = (res: Response, message: string, status: number) => {
-  return res.status(status).json({
+export const resError = (res: Response, message: string, statusCode: number) => {
+  return res.status(statusCode).json({
     status: 'ERROR',
     message: message
   })

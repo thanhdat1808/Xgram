@@ -12,11 +12,11 @@ class ConversationsController {
   
   public getConversations = async (req: RequestWithUser, res: Response) => {
     try {
-      const userId: string = req.user._id
+      const userId: string = req.user._id.valueOf()
       const conversations: ConversationFormatInterface[] = await this.conversationService.getConversations(userId)
       resSuccess(res, conversations.map(conversation => formatConversation(conversation)), 'Get conversations')
     } catch (error) {
-      resError(res, 'Fail to get', statusCode.INTERNAL_SERVER_ERROR)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
   public getMessages = async (req: RequestWithUser, res: Response) => {
@@ -25,17 +25,17 @@ class ConversationsController {
       const conversations: ConversationFormatInterface = await this.conversationService.getMessage(conversationId)
       resSuccess(res, formatMessage(conversations.last_message), 'Get conversations')
     } catch (error) {
-      resError(res, 'Fail to get', statusCode.INTERNAL_SERVER_ERROR)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
   public createConversation = async (req: RequestWithUser, res: Response) => {
     try {
-      const userId: string = req.user._id
+      const userId: string = req.user._id.valueOf()
       const message: MessageInterface = req.body
       const createConversation: ConversationFormatInterface = await this.conversationService.createConversation(userId, message)
       resSuccess(res, formatConversation(createConversation), 'Created')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
   public deleteConversation = async (req: RequestWithUser, res: Response) => {
@@ -44,7 +44,7 @@ class ConversationsController {
       const deleteConversation: ConversationFormatInterface = await this.conversationService.deleteConversation(conversationId)
       resSuccess(res, formatConversation(deleteConversation), 'Deleted')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 }

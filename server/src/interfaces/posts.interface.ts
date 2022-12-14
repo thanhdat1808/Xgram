@@ -10,6 +10,7 @@ export interface Post {
 	}]
 	comments: Comment[]
 	posted_by: string
+	tags: []
 	created_at: Date
 	updated_at: Date
 }
@@ -22,6 +23,7 @@ export interface PostFormat {
 	}]
 	comments: CommentFormat[]
 	posted_by: User
+	tag: [String]
 	created_at: Date
 	updated_at: Date
 }

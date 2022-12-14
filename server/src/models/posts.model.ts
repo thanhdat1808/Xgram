@@ -26,23 +26,17 @@ const postSchema: Schema = new Schema({
 	},
 	comments: {
 		type: [{
-			comment: {
-				type: String
-			},
-			commented_by: {
-				type: Schema.Types.ObjectId,
-				ref: 'User'
-			},
-			created_at: {
-				type: Date,
-				default: Date.now
-			}
+			type: Schema.Types.ObjectId,
+			ref: 'Comment'
 		}]
 	},
 	posted_by: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
 		require: true
+	},
+	tags: {
+		type: [String]
 	},
 	created_at: {
 		type: Date,

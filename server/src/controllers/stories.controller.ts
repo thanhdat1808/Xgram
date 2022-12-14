@@ -6,6 +6,7 @@ import StoriesService from '@/services/stories.service'
 import { resError, resSuccess } from '@/utils/custom-response'
 import { RequestWithUser } from '@interfaces/auth.interface'
 import { formatStories } from '@/utils/formatData'
+import { statusCode } from '@/utils/statuscode'
 
 class StoriesController {
   public userService = new userService()
@@ -17,7 +18,7 @@ class StoriesController {
         const getStories: StoryFormat[] = await this.storiesService.getStories(userId)
         resSuccess(res, getStories.map(story => formatStories(story)), 'Get posts')
       } catch (error) {
-        resError(res, error.message, error.code)
+        resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
       }
     }
 
@@ -27,7 +28,7 @@ class StoriesController {
       const getStories: StoryFormat = await this.storiesService.getStoriesById(postId)
       resSuccess(res, formatStories(getStories), 'finOne')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -35,12 +36,12 @@ class StoriesController {
     try {
       const postData: CreateStories = {
         ...req.body,
-        posted_by: req.user._id
+        posted_by: req.user._id.valueOf()
       }
       const createStory: StoryFormat = await this.storiesService.createStories(postData)
       resSuccess(res, formatStories(createStory), 'created')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -51,7 +52,7 @@ class StoriesController {
       const updatePostData: StoryFormat = await this.storiesService.updateStories(postId, postData)
       resSuccess(res, formatStories(updatePostData), 'updated')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -61,7 +62,7 @@ class StoriesController {
       const deletePostData: Story = await this.storiesService.deleteStories(storyId)
       resSuccess(res, deletePostData, 'deleted')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -72,7 +73,7 @@ class StoriesController {
       const deletePostData: StoryFormat = await this.storiesService.deleteStoriesMedia(storyId, mediaId)
       resSuccess(res, formatStories(deletePostData), 'deleted')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 }

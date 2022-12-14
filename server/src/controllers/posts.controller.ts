@@ -1,33 +1,35 @@
 import { Response } from 'express'
-import { AddComment, CreatePostDto, EditComment, UpdatePostDto } from '@/dtos/posts.dto'
+import { CreatePostDto, UpdatePostDto } from '@/dtos/posts.dto'
 import { Post, PostFormat, CommentFormat } from '@interfaces/posts.interface'
 import userService from '@services/users.service'
 import postService from '@services/posts.service'
 import { resError, resSuccess } from '@/utils/custom-response'
 import { RequestWithUser } from '@interfaces/auth.interface'
 import { formatComment, formatPost } from '@/utils/formatData'
+import { statusCode } from '@/utils/statuscode'
 
 class PostsController {
   public userService = new userService()
   public postService = new postService()
   
-    public getPostFollow = async (req: RequestWithUser, res: Response) => {
+    public getHomePost = async (req: RequestWithUser, res: Response) => {
       try {
         const userId: string = req.user._id.valueOf()
-        const findOnePostData: PostFormat[] = await this.postService.getPostFollow(userId)
+        const page: string = req.query.page as string
+        const findOnePostData: PostFormat[] = await this.postService.getHomePost(userId, page)
         resSuccess(res, findOnePostData.map(post => formatPost(post)), 'Get posts')
       } catch (error) {
-        resError(res, error.message, error.code)
+        resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
       }
     }
 
-  public getPostById = async (req: RequestWithUser, res: Response) => {
+  public getPostDetail = async (req: RequestWithUser, res: Response) => {
     try {
       const postId: string = req.params.id
-      const findOnePostData: PostFormat = await this.postService.findPostById(postId)
+      const findOnePostData: PostFormat = await this.postService.getPostDetail(postId)
       resSuccess(res, formatPost(findOnePostData), 'finOne')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -35,12 +37,12 @@ class PostsController {
     try {
       const postData: CreatePostDto = {
         ...req.body,
-        posted_by: req.user._id
+        posted_by: req.user._id.valueOf()
       }
       const createPost: PostFormat = await this.postService.createPost(postData)
       resSuccess(res, formatPost(createPost), 'created')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -49,9 +51,9 @@ class PostsController {
       const postId: string = req.params.id
       const postData: UpdatePostDto = req.body
       const updatePostData: PostFormat = await this.postService.updatePost(postId, postData)
-      resSuccess(res, formatPost(updatePostData as unknown as PostFormat), 'updated')
+      resSuccess(res, formatPost(updatePostData), 'updated')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -61,7 +63,7 @@ class PostsController {
       const deletePostData: Post = await this.postService.deletePost(postId)
       resSuccess(res, deletePostData, 'deleted')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -71,17 +73,19 @@ class PostsController {
       const commentPost: CommentFormat[] = await this.postService.getComment(postId)
       resSuccess(res, commentPost.map(comment => formatComment(comment)), 'Get comment')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
   public addCommentPost = async (req: RequestWithUser, res: Response) => {
     try {
-      const dataComment: AddComment = req.body
-      const addComment: PostFormat = await this.postService.addComment(dataComment)
+      const userId: string = req.user._id.valueOf()
+      const postId: string = req.params.id
+      const comment: string = req.body.data
+      const addComment: PostFormat = await this.postService.addComment(userId, postId, comment)
       resSuccess(res, formatPost(addComment), 'Add success')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -89,57 +93,56 @@ class PostsController {
     try {
       const postId: string = req.params.post_id
       const commentId: string = req.params.comment_id
-      const dataUpdate: EditComment = req.body
+      const dataUpdate: string = req.body.data
       const postUpdate: PostFormat = await this.postService.editComment(postId, commentId, dataUpdate)
       resSuccess(res, formatPost(postUpdate), 'Update')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
   public deleteCommentsPost = async (req: RequestWithUser, res: Response) => {
     try {
-      const postId: string = req.body.id_post
-      const commentId: string = req.body.id_comment
-      const deleteCommentData: Post = await this.postService.deleteComment(postId, commentId)
-      res.status(200).json({ data: deleteCommentData, message: 'deleted' })
+      const postId: string = req.params.post_id
+      const commentId: string = req.params.comment_id
+      const deleteCommentData: PostFormat = await this.postService.deleteComment(postId, commentId)
+      resSuccess(res, formatPost(deleteCommentData), 'deleted')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
   public reaction = async (req: RequestWithUser, res: Response) => {
     try {
-      const postId: string = req.body.id_post
-      const react_type: number = req.body.type
-      const reacted_by: string = req.body.reacted_by
-      const post: PostFormat = await this.postService.reaction(postId, react_type, reacted_by)
+      const postId: string = req.params.id
+      const reacted_by: string = req.user._id.valueOf()
+      const post: PostFormat = await this.postService.reaction(postId, reacted_by)
       resSuccess(res, formatPost(post), 'Success')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
   public unReaction = async (req: RequestWithUser, res: Response) => {
     try {
-      const postId: string = req.body.id_post
-      const reacted_by: string = req.body.reacted_by
+      const postId: string = req.params.id
+      const reacted_by: string = req.user._id.valueOf()
       const postData: PostFormat = await this.postService.unReaction(postId, reacted_by)
-      resSuccess(res, formatPost(postData), 'un reaction')
+      resSuccess(res, formatPost(postData), 'Success')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
-  public changeReaction = async (req: RequestWithUser, res: Response) => {
+  public search = async (req: RequestWithUser, res: Response) => {
     try {
-      const postId: string = req.params.id
-      const type: number = req.body.type
-      const reacted_by: string = req.body.reacted_by
-      const changeReaction: Post = await this.postService.changeReaction(postId, type, reacted_by)
-      res.status(200).json({ data: changeReaction, message: 'Success' })
+      const tag: string = req.query.tag as string
+      const message: string = req.query.q as string
+      const page: string = req.query.page as string
+      const searchPosts: PostFormat[] = await this.postService.search(tag, message, page)
+      resSuccess(res, searchPosts.map(post => formatPost(post)), 'Result search')
     } catch (error) {
-      resError(res, error.message, error.code)
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 }

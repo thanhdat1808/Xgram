@@ -4,6 +4,8 @@ import { RequestWithUser } from '@interfaces/auth.interface'
 import { User } from '@interfaces/users.interface'
 import AuthService from '@services/auth.service'
 import { formatUser } from '@/utils/formatData'
+import { resError, resSuccess } from '@/utils/custom-response'
+import { statusCode } from '@/utils/statuscode'
 
 class AuthController {
   public authService = new AuthService()
@@ -40,6 +42,27 @@ class AuthController {
       res.status(200).json({ data: logOutUserData, message: 'logout' })
     } catch (error) {
       next(error)
+    }
+  }
+
+  public forgotPassword = async (req: Request, res: Response) => {
+    try {
+      const email: string = req.body.email
+      await this.authService.forgotPassword(email)
+      resSuccess(res, {},  'Mail sended your email')
+    } catch (error) {
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
+    }
+  }
+
+  public resetPassword = async (req: Request, res: Response) => {
+    try {
+      const userId: string = req.params.userId
+      const token: string = req.params.token
+      await this.authService.resetPassword(userId, token)
+      resSuccess(res, {},  'Mail sended your email')
+    } catch (error) {
+      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 }

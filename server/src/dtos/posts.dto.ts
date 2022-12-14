@@ -11,8 +11,6 @@ export class CreatePostDto {
   message: string
   @IsArray()
   medias: TMedia[]
-  @IsString()
-  posted_by: string
 }
 export class UpdatePostDto {
   @IsString()
@@ -22,15 +20,11 @@ export class UpdatePostDto {
 }
 export class AddComment {
   @IsString()
-  id_post: string
-  @IsString()
-  comment: string
-  @IsString()
-  comment_by: string
+  data: string
 }
 export class EditComment {
   @IsString()
-  comment: string
+  data: string
 }
 export class DeleteComment {
   @IsString()

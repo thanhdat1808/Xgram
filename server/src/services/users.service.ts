@@ -1,15 +1,55 @@
 import { compare, hash } from 'bcrypt'
-import { LoginUser, PasswordDto, UpdateUserDto } from '@dtos/users.dto'
-import { User } from '@interfaces/users.interface'
+import { PasswordDto, UpdateUserDto } from '@dtos/users.dto'
+import { User, UserFormat } from '@interfaces/users.interface'
 import userModel from '@models/users.model'
+import postModel from '@/models/posts.model'
 import { isEmpty } from '@utils/util'
-import * as bcrypt from 'bcrypt'
-import * as jwt from 'jsonwebtoken'
 import { CustomError } from '@/utils/custom-error'
 import { statusCode } from '@/utils/statuscode'
+import { PostFormat } from '@/interfaces/posts.interface'
 class UserService {
   public users = userModel
+  public posts = postModel
   public populate = ['followers', 'following']
+  public perPage = 10
+  public populatePost = [{
+    path: 'posted_by',
+    populate: [
+      {
+        path: 'followers',
+        model: 'User'
+      },
+      {
+        path: 'following',
+        model: 'User'
+      }
+    ]
+  }, {
+    path: 'comments.commented_by',
+    populate: [
+      {
+        path: 'followers',
+        model: 'User'
+      },
+      {
+        path: 'following',
+        model: 'User'
+      }
+    ]
+  }, {
+    path: 'reactions.reacted_by',
+    populate: [
+      {
+        path: 'followers',
+        model: 'User'
+      },
+      {
+        path: 'following',
+        model: 'User'
+      }
+    ]
+  }]
+
   public async findAllUser(): Promise<User[]> {
     const users: User[] = await this.users.find()
     return users
@@ -20,6 +60,16 @@ class UserService {
     const findUser: User = await this.users.findOne({ _id: userId }).populate(this.populate)
     if (!findUser) throw new CustomError('User doesn`t exist', {}, statusCode.CONFLICT)
     return findUser
+  }
+
+  public async getProfilePosts(userId: string, page: string): Promise<PostFormat[]> {
+    if (isEmpty(userId)) throw new CustomError('User id is empty', {}, statusCode.BAD_REQUEST)
+    const findUser: User = await this.users.findById(userId)
+    if(!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
+    const profilePosts: PostFormat[] = await this.posts.find({
+      posted_by: userId
+    }).limit(this.perPage).skip((+page-1)*this.perPage).sort('created_at').populate(this.populatePost)
+    return profilePosts
   }
 
   public async updatePassword(userId: string, dataPassword: PasswordDto) {
@@ -49,22 +99,6 @@ class UserService {
     if (!deleteUserById) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
 
     return deleteUserById
-  }
-
-  public async loginUser(userData: LoginUser): Promise<string> {
-    try {
-      const user = await this.users.findOne({ email: userData.email })
-      if (!user) throw new CustomError('User doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
-
-      const checkPassword = await bcrypt.compare(userData.password, user.password)
-
-      if (!checkPassword) throw new CustomError('Email or Password is not correct', {}, statusCode.UNPROCESSABLE_ENTITY)
-
-      const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, { expiresIn: '100h' })
-      return token
-    } catch (error) {
-      throw new CustomError('Fail to search DB', {}, statusCode.INTERNAL_SERVER_ERROR)
-    }
   }
 
   public async followUser(userId: string, followId: string): Promise<User> {
@@ -129,6 +163,47 @@ class UserService {
       if(error.code) throw error
       throw new CustomError('Fail to search DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
+  }
+
+  public async getBlockUser(userId: string): Promise<User[]> {
+    const blockUsers: UserFormat = await this.users.findById(userId).populate('blocked_users')
+    return blockUsers.blocked_users
+  }
+
+  public async blockUser(userId: string, blockUserId: string): Promise<User> {
+    if(isEmpty(blockUserId)) throw new CustomError('User id is empty', {}, statusCode.BAD_REQUEST)
+    const blockUser: User = await this.users.findOneAndUpdate({
+      _id: userId
+    }, {
+      $push: {
+        blocked_users: blockUserId
+      }
+    }, {
+      new: true
+    })
+    return blockUser
+  }
+
+  public async unBlockUser(userId: string, blockUserId: string): Promise<User> {
+    if(isEmpty(blockUserId)) throw new CustomError('User id is empty', {}, statusCode.BAD_REQUEST)
+    const blockUser: User = await this.users.findOneAndUpdate({
+      _id: userId
+    }, {
+      $pull: {
+        blocked_users: blockUserId
+      }
+    }, {
+      new: true
+    }) 
+    return blockUser
+  }
+
+  public async searchUsers(name: string, page: string): Promise<User[]> {
+    const searchUsers: User[] = await this.users.find({
+      full_name: new RegExp(name, 'i')
+    }).limit(this.perPage).skip((+page-1)*this.perPage).sort('created_at').populate(this.populate)
+    if(!searchUsers.length) throw new CustomError('No matching results', {}, statusCode.BAD_REQUEST)
+    return searchUsers
   }
 }
 
