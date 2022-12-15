@@ -1,6 +1,6 @@
 import { RequestWithUser } from '@/interfaces/auth.interface'
 import { ConversationFormatInterface } from '@/interfaces/conversations.interface'
-import { MessageInterface } from '@/interfaces/messages.interface'
+import { MessageFormatInterface, MessageInterface } from '@/interfaces/messages.interface'
 import ConversationService from '@/services/conversations.service'
 import { resError, resSuccess } from '@/utils/custom-response'
 import { formatConversation, formatMessage } from '@/utils/formatData'
@@ -22,8 +22,8 @@ class ConversationsController {
   public getMessages = async (req: RequestWithUser, res: Response) => {
     try {
       const conversationId: string = req.params.id
-      const conversations: ConversationFormatInterface = await this.conversationService.getMessage(conversationId)
-      resSuccess(res, formatMessage(conversations.last_message), 'Get conversations')
+      const messages: MessageFormatInterface[] = await this.conversationService.getMessage(conversationId)
+      resSuccess(res, messages.map(message => formatMessage(message)), 'Get conversations')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }

@@ -11,3 +11,11 @@ export interface Notification {
   post_id: string
   created_at: Date
 }
+export interface CreateNotification {
+  type: string
+  ref_post: PostFormat
+  ref_user: UserFormat
+  ref_comment: CommentFormat
+  user: string
+  post_id: string
+}

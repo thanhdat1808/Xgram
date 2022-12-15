@@ -6,7 +6,7 @@ import { isEmpty } from '@utils/util'
 import { statusCode } from '@/utils/statuscode'
 import { User } from '@/interfaces/users.interface'
 import { CustomError } from '@/utils/custom-error'
-import { Notification } from '@/interfaces/notifications.interface'
+import { CreateNotification, Notification } from '@/interfaces/notifications.interface'
 class NotificationsService {
   public notifications = notificationModel
   public users = userModel
@@ -24,7 +24,7 @@ class NotificationsService {
     }
   }
 
-  public async createNotification(notificationData: Notification) {
+  public async createNotification(notificationData: CreateNotification) {
     try {
       if (isEmpty(notificationData)) throw new HttpException(400, 'Data is empty')
       const createStories: StoryFormat = await (await this.notifications.create({ ...notificationData })).populate(this.populate)
@@ -38,9 +38,9 @@ class NotificationsService {
 
   public async deleteNotification(notificationId: string): Promise<Story> {
     try {
-      const deletePostById: Story = await this.notifications.findByIdAndDelete(notificationId)
-      if (!deletePostById) throw new HttpException(409, 'Notification doesn\'t exist')
-      return deletePostById
+      const deleteNotification: Story = await this.notifications.findByIdAndDelete(notificationId)
+      if (!deleteNotification) throw new HttpException(409, 'Notification doesn\'t exist')
+      return deleteNotification
     } catch (error) {
       throw new HttpException(500, error.message)
     }

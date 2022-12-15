@@ -60,7 +60,7 @@ class AuthController {
       const userId: string = req.params.userId
       const token: string = req.params.token
       await this.authService.resetPassword(userId, token)
-      resSuccess(res, {},  'Mail sended your email')
+      res.send('Mail sended your email')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }

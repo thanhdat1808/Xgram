@@ -1,6 +1,7 @@
 import { TMedia } from '@/dtos/posts.dto'
 import { ConversationFormatInterface } from '@/interfaces/conversations.interface'
 import { MessageFormatInterface } from '@/interfaces/messages.interface'
+import { Notification } from '@/interfaces/notifications.interface'
 import { CommentFormat, PostFormat } from '@/interfaces/posts.interface'
 import { StoryFormat } from '@/interfaces/stories.interface'
 import { User } from '@/interfaces/users.interface'
@@ -94,5 +95,28 @@ export const formatConversation = (conversation: ConversationFormatInterface) =>
     user: formatUser(conversation.user),
     created_at: conversation.created_at,
     updated_at: conversation.updated_at
+  }
+}
+export const formatNotification = (notif: Notification) => {
+  let reference
+  switch (notif.type) {
+    case 'react':
+      reference = notif.ref_post
+      break
+    case 'comment':
+      reference = notif.ref_comment
+      break
+    case 'follow':
+      reference = notif.ref_user
+      break
+    default:
+      break
+  }
+  return {
+    notification_id: notif._id,
+    type: notif.type,
+    user: notif.user,
+    reference: reference,
+    post_id: notif.post_id
   }
 }
