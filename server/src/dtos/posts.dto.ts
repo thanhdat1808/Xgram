@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsNumber } from 'class-validator'
+import { IsString, IsArray, IsNumber, IsBoolean } from 'class-validator'
 
 export type TMedia = {
   _id: string,
@@ -11,6 +11,10 @@ export class CreatePostDto {
   message: string
   @IsArray()
   medias: TMedia[]
+  @IsArray()
+  tags: []
+  @IsString()
+  privacy: string
 }
 export class UpdatePostDto {
   @IsString()
@@ -21,6 +25,8 @@ export class UpdatePostDto {
 export class AddComment {
   @IsString()
   data: string
+  @IsBoolean()
+  is_image: boolean
 }
 export class EditComment {
   @IsString()

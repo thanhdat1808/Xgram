@@ -36,6 +36,7 @@ export const formatComment = (comment: CommentFormat) => {
   return {
     comment_id: comment._id,
     comment: comment.comment,
+    is_image: comment.is_image,
     commented_by: formatUser(comment.commented_by),
     created_at: comment.created_at
   }
@@ -62,6 +63,8 @@ export const formatPost = (post: PostFormat) => {
   return {
     post_id: post._id,
     message: post.message,
+    tags: post.tags,
+    privacy: post.privacy,
     medias: post.medias.map(media => formatMedia(media)),
     posted_by: formatUser(post.posted_by),
     reactions: post.reactions.map(reaction => ({reacted_by: formatUser(reaction.reacted_by)})),

@@ -15,7 +15,7 @@ class PostsController {
     public getHomePost = async (req: RequestWithUser, res: Response) => {
       try {
         const userId: string = req.user._id.valueOf()
-        const page: string = req.query.page as string
+        const page: string = req.query.page as string || '1'
         const findOnePostData: PostFormat[] = await this.postService.getHomePost(userId, page)
         resSuccess(res, findOnePostData.map(post => formatPost(post)), 'Get posts')
       } catch (error) {
@@ -82,8 +82,10 @@ class PostsController {
       const userId: string = req.user._id.valueOf()
       const postId: string = req.params.id
       const comment: string = req.body.data
-      const addComment: PostFormat = await this.postService.addComment(userId, postId, comment)
-      resSuccess(res, formatPost(addComment), 'Add success')
+      const isImage: string = req.body.is_image
+      console.log(isImage)
+      const addComment: CommentFormat = await this.postService.addComment(userId, postId, comment, isImage)
+      resSuccess(res, formatComment(addComment), 'Add success')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
@@ -136,9 +138,9 @@ class PostsController {
 
   public search = async (req: RequestWithUser, res: Response) => {
     try {
-      const tag: string = req.query.tag as string
+      const tag: string = req.query.tag as string || ''
       const message: string = req.query.q as string
-      const page: string = req.query.page as string
+      const page: string = req.query.page as string || '1'
       const searchPosts: PostFormat[] = await this.postService.search(tag, message, page)
       resSuccess(res, searchPosts.map(post => formatPost(post)), 'Result search')
     } catch (error) {

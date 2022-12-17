@@ -34,7 +34,13 @@ class UploadService {
           url: url,
           is_video: is_video
         }
-        if (!is_video) {
+        if (is_video) {
+          item = {
+            ...item,
+            tag: 'video'
+          }
+        }
+        else {
           item = {
             ...item,
             tag: await this.addTag(url)

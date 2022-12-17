@@ -5,6 +5,9 @@ const commentSchema: Schema = new Schema({
   comment: {
     type: String
   },
+  is_image: {
+    type: Boolean
+  },
   commented_by: {
     type: Schema.Types.ObjectId,
     ref: 'User'

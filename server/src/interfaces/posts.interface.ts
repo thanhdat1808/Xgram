@@ -23,7 +23,8 @@ export interface PostFormat {
 	}]
 	comments: CommentFormat[]
 	posted_by: User
-	tag: [String]
+	tags: [String]
+	privacy: String
 	created_at: Date
 	updated_at: Date
 }
@@ -34,6 +35,7 @@ export interface Comment {
 export interface CommentFormat {
 	_id: string
 	comment: string
+	is_image: string
 	commented_by: User
 	created_at: Date
 }

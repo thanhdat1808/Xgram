@@ -39,6 +39,9 @@ class PostService {
           model: 'User'
         }
       ]
+    },
+    options: {
+      sort: { 'created_at': -1 }
     }
   }, {
     path: 'reactions.reacted_by',
@@ -53,6 +56,9 @@ class PostService {
       }
     ]
   }]
+  public populateComment: {
+    path: 'commented_by'
+  }
 
   public async getPostDetail(postId: string): Promise<PostFormat> {
     try {
@@ -71,8 +77,23 @@ class PostService {
       const findUser: User = await this.users.findById(userId)
       if(!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
       const findPost: PostFormat[] = await this.posts.find({
-        posted_by: {$in: findUser.following}
-      }).limit(this.perPage).skip((+page-1)*this.perPage).sort('created_at').populate(this.populate)
+        $or: [
+          {
+            $and: [
+              {
+                $or: [
+                  { posted_by: {$in: findUser.following} },
+                  { privacy: 'public'}
+                ]
+              },
+              {
+                privacy: { $ne: 'private' }
+              }
+            ]
+          },
+          { posted_by: userId }
+        ]
+      }).limit(this.perPage).skip((+page-1)*this.perPage).sort({'created_at': -1}).populate(this.populate)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
       return findPost
     } catch (error) {
@@ -110,28 +131,31 @@ class PostService {
 
   public async getComment(postId: string): Promise<CommentFormat[]> {
     try {
-      const findPost: PostFormat = await this.posts.findOne({ _id: postId }).populate(this.populate)
+      const findPost: PostFormat = await this.posts.findOne({ _id: postId })
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
-      return findPost.comments
+      const getComment: CommentFormat[] = await this.comments.find({_id: {$in: findPost.comments} }).sort({'created_at': -1}).populate('commented_by')
+      return getComment
     } catch (error) {
       throw new HttpException(500, error.message)
     }
   }
 
-  public async addComment(userId: string, postId: string, comment: string): Promise<PostFormat> {
+  public async addComment(userId: string, postId: string, comment: string, isImage: string): Promise<CommentFormat> {
     try {
       const findPost: Post = await this.posts.findById(postId)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
       const newComment: CommentFormat = await this.comments.create({
         comment: comment,
+        is_image: isImage,
         commented_by: userId
       })
-      const posts: PostFormat = await this.posts.findByIdAndUpdate(postId, {
+      await this.posts.findByIdAndUpdate(postId, {
         $push: {
           comments: newComment._id
         }
       }, { new: true }).populate(this.populate)
-      return posts
+      const getComment: CommentFormat = await this.comments.findById(newComment._id).populate({path: 'commented_by'})
+      return getComment
     } catch (error) {
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
@@ -193,11 +217,8 @@ class PostService {
   }
   public async search(tag: string, message: string, page: string): Promise<PostFormat[]> {
     const searchPost: PostFormat[] = await this.posts.find({
-      $or: [{
-        tags: `/${tag}/`
-      }, {
-        message: `/${message}/`
-      }]
+      message: new RegExp(message, 'i'),
+      tags: new RegExp(tag, 'i')
     }).limit(this.perPage).skip((+page-1)*this.perPage).sort('created_at').populate(this.populate)
     if(!searchPost) throw new CustomError('No matching results', {}, statusCode.BAD_REQUEST)
     return searchPost

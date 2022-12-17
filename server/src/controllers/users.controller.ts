@@ -42,7 +42,7 @@ class UsersController {
 
   public getProfilePost = async (req: RequestWithUser, res: Response) => {
     try {
-      const userId: string = req.user._id
+      const userId: string = req.params.id
       const page: string = req.query.page as string
       const getProfilePosts: PostFormat[] = await this.userService.getProfilePosts(userId, page)
       resSuccess(res, getProfilePosts.map(post => formatPost(post)), 'Get posts')
@@ -129,9 +129,10 @@ class UsersController {
 
   public searchUsers = async (req: RequestWithUser, res: Response) => {
     try {
-      const name: string = req.query.name as string
-      const page: string = req.query.page as string
-      const serachUsers: User[] = await this.userService.searchUsers(name, page)
+      const userId: string = req.user._id.valueOf()
+      const name: string = req.query.q as string
+      const page: string = req.query.page as string || '1'
+      const serachUsers: User[] = await this.userService.searchUsers(userId, name, page)
       resSuccess(res, serachUsers.map(user => formatUser(user)), 'Result search')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)

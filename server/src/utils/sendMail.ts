@@ -14,7 +14,7 @@ export const sendMail = async (email: string, subject: string, content: string) 
       user: adminEmail,
       pass: adminPass
     },
-    logger: true
+    logger: false
   })
   const mailOptions = {
     from: adminEmail,

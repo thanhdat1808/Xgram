@@ -36,7 +36,12 @@ const postSchema: Schema = new Schema({
 		require: true
 	},
 	tags: {
-		type: [String]
+		type: [String],
+		enum: ['architecture', 'art', 'cosplay', 'decor', 'fashion', 'food', 'landscape', 'video']
+	},
+	privacy: {
+		type: String,
+		enum: ['public', 'private', 'followers']
 	},
 	created_at: {
 		type: Date,

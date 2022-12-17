@@ -16,7 +16,7 @@ class PostsRoute implements Routes {
     this.router.get(`${this.path}`, authMiddleware, this.postsController.getHomePost)
     this.router.get(`${this.path}/:id`, authMiddleware, this.postsController.getPostDetail)
     this.router.post(`${this.path}`, authMiddleware, validationMiddleware(CreatePostDto, 'body', true), this.postsController.createPost)
-    this.router.post(`${this.path}/:id`, authMiddleware, validationMiddleware(CreatePostDto, 'body', true), this.postsController.updatePost)
+    this.router.post(`${this.path}/:id`, authMiddleware, this.postsController.updatePost)
     this.router.delete(`${this.path}/:id`, authMiddleware, this.postsController.deletePost)
     this.router.get(`${this.path}/:id/comments`, authMiddleware, this.postsController.getCommentPost)
     this.router.post(`${this.path}/:id/comments`, authMiddleware, validationMiddleware(AddComment, 'body'), this.postsController.addCommentPost)
@@ -24,7 +24,7 @@ class PostsRoute implements Routes {
     this.router.delete(`${this.path}/:post_id/comments/:comment_id`, authMiddleware, this.postsController.deleteCommentsPost)
     this.router.post(`${this.path}/:id/like`, authMiddleware, this.postsController.reaction)
     this.router.post(`${this.path}/:id/unlike`, authMiddleware, this.postsController.unReaction)
-    this.router.get(`${this.path}/search`, authMiddleware, this.postsController.search)
+    this.router.get(`/search${this.path}`, authMiddleware, this.postsController.search)
   }
 }
 

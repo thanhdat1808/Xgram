@@ -25,17 +25,20 @@ class UserService {
       }
     ]
   }, {
-    path: 'comments.commented_by',
-    populate: [
-      {
-        path: 'followers',
-        model: 'User'
-      },
-      {
-        path: 'following',
-        model: 'User'
-      }
-    ]
+    path: 'comments',
+    populate: {
+      path: 'commented_by',
+      populate: [
+        {
+          path: 'followers',
+          model: 'User'
+        },
+        {
+          path: 'following',
+          model: 'User'
+        }
+      ]
+    }
   }, {
     path: 'reactions.reacted_by',
     populate: [
@@ -198,9 +201,10 @@ class UserService {
     return blockUser
   }
 
-  public async searchUsers(name: string, page: string): Promise<User[]> {
+  public async searchUsers(userId: string, name: string, page: string): Promise<User[]> {
     const searchUsers: User[] = await this.users.find({
-      full_name: new RegExp(name, 'i')
+      full_name: new RegExp(name, 'i'),
+      _id: {$ne: userId}
     }).limit(this.perPage).skip((+page-1)*this.perPage).sort('created_at').populate(this.populate)
     if(!searchUsers.length) throw new CustomError('No matching results', {}, statusCode.BAD_REQUEST)
     return searchUsers
