@@ -1,6 +1,6 @@
 import { RequestWithUser } from '@/interfaces/auth.interface'
 import { ConversationFormatInterface } from '@/interfaces/conversations.interface'
-import { MessageFormatInterface, MessageInterface } from '@/interfaces/messages.interface'
+import { MessageFormatInterface } from '@/interfaces/messages.interface'
 import ConversationService from '@/services/conversations.service'
 import { resError, resSuccess } from '@/utils/custom-response'
 import { formatConversation, formatMessage } from '@/utils/formatData'
@@ -14,7 +14,8 @@ class ConversationsController {
     try {
       const userId: string = req.user._id.valueOf()
       const conversations: ConversationFormatInterface[] = await this.conversationService.getConversations(userId)
-      resSuccess(res, conversations.map(conversation => formatConversation(conversation)), 'Get conversations')
+      const data = conversations.length > 0 ? conversations.map(conversation => formatConversation(conversation)) : []
+      resSuccess(res, data, 'Get conversations')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
@@ -24,16 +25,6 @@ class ConversationsController {
       const conversationId: string = req.params.id
       const messages: MessageFormatInterface[] = await this.conversationService.getMessage(conversationId)
       resSuccess(res, messages.map(message => formatMessage(message)), 'Get conversations')
-    } catch (error) {
-      resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
-    }
-  }
-  public createConversation = async (req: RequestWithUser, res: Response) => {
-    try {
-      const userId: string = req.user._id.valueOf()
-      const message: MessageInterface = req.body
-      const createConversation: ConversationFormatInterface = await this.conversationService.createConversation(userId, message)
-      resSuccess(res, formatConversation(createConversation), 'Created')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }

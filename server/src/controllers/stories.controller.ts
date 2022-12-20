@@ -16,7 +16,7 @@ class StoriesController {
       try {
         const userId: string = req.user._id.valueOf()
         const getStories: StoryFormat[] = await this.storiesService.getStories(userId)
-        resSuccess(res, getStories.map(story => formatStories(story)), 'Get posts')
+        resSuccess(res, getStories.map(story => formatStories(story)), 'Get stories')
       } catch (error) {
         resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
       }

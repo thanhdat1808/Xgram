@@ -1,4 +1,4 @@
-import { TMedia } from '@/dtos/posts.dto'
+import { TMediaStory } from '@/dtos/posts.dto'
 import { User } from './users.interface'
 
 export interface Story {
@@ -15,7 +15,7 @@ export interface Story {
 }
 export interface StoryFormat {
   _id: string
-  medias: TMedia[]
+  medias: TMediaStory[]
   posted_by: User
   created_at: string
   updated_at: Date

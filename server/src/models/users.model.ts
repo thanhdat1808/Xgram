@@ -11,11 +11,13 @@ const userSchema: Schema = new Schema({
     type: String,
     required: true
   },
-  reset_password: {
-    type: String
-  },
   full_name: {
     type: String,
+    require: true
+  },
+  user_name: {
+    type: String,
+    unique: true,
     require: true
   },
   avatar_url: {
@@ -28,10 +30,10 @@ const userSchema: Schema = new Schema({
     type: String
   },
   phone_number: {
-    type: Number
+    type: String
   },
   date_of_birth: {
-    type: Date
+    type: String
   },
   followers: {
     type: [{

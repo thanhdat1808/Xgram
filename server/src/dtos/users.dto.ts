@@ -1,6 +1,9 @@
 import { IsEmail, IsString, IsNumber, IsArray, IsDate } from 'class-validator'
 
 export class CreateUserDto {
+  @IsString()
+  user_name: string
+
   @IsEmail()
   email: string
 
@@ -13,17 +16,11 @@ export class CreateUserDto {
   @IsString()
   avatar_url: string
 
-  @IsString()
-  bio: string
-
   @IsNumber()
   gender: number
 
-  @IsNumber()
-  phone_number: number
-
-  @IsDate()
-  date_of_birth: Date
+  @IsString()
+  date_of_birth: string
 }
 export class UpdateUserDto {
   @IsEmail()

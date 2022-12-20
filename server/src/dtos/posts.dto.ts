@@ -6,6 +6,9 @@ export type TMedia = {
   is_video: boolean,
   created_at: Date
 }
+export type TMediaStory = TMedia & {
+  story_id: string
+}
 export class CreatePostDto {
   @IsString()
   message: string

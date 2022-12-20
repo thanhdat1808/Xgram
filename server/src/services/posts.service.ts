@@ -56,15 +56,14 @@ class PostService {
       }
     ]
   }]
-  public populateComment: {
-    path: 'commented_by'
-  }
+  public populateComment = 'commented_by'
 
-  public async getPostDetail(postId: string): Promise<PostFormat> {
+  public async getPostDetail(userId: string, postId: string): Promise<PostFormat> {
     try {
       if (isEmpty(postId)) throw new HttpException(400, 'postId is empty')
       const findPost: PostFormat = await this.posts.findById(postId).populate(this.populate)
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
+      if(findPost.privacy === 'private' && findPost.posted_by._id !== userId ) return
       return findPost
     } catch (error) {
       throw new HttpException(500, error.message)
@@ -133,7 +132,7 @@ class PostService {
     try {
       const findPost: PostFormat = await this.posts.findOne({ _id: postId })
       if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
-      const getComment: CommentFormat[] = await this.comments.find({_id: {$in: findPost.comments} }).sort({'created_at': -1}).populate('commented_by')
+      const getComment: CommentFormat[] = await this.comments.find({_id: {$in: findPost.comments} }).sort({'created_at': -1}).populate(this.populateComment)
       return getComment
     } catch (error) {
       throw new HttpException(500, error.message)
@@ -154,19 +153,19 @@ class PostService {
           comments: newComment._id
         }
       }, { new: true }).populate(this.populate)
-      const getComment: CommentFormat = await this.comments.findById(newComment._id).populate({path: 'commented_by'})
+      const getComment: CommentFormat = await this.comments.findById(newComment._id).populate(this.populateComment)
       return getComment
     } catch (error) {
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
   }
 
-  public async editComment(postId: string, commentId: string, dataUpdate: string): Promise<PostFormat> {
+  public async editComment(postId: string, commentId: string, dataUpdate: string): Promise<CommentFormat> {
     try {
-      await this.comments.findByIdAndUpdate(commentId, {comment: dataUpdate})
+      const editComment: CommentFormat = await this.comments.findByIdAndUpdate(commentId, {comment: dataUpdate}).populate(this.populateComment)
       const postUpdate: PostFormat = await this.posts.findById(postId).populate(this.populate)
       if (!postUpdate) throw new HttpException(409, 'Post doesn\'t exist')
-      return postUpdate
+      return editComment
     } catch (error) {
       throw new HttpException(500, error.message)
     }

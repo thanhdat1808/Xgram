@@ -11,6 +11,7 @@ export const resSuccess = (res: Response, data: Object, message: string) => {
 export const resError = (res: Response, message: string, statusCode: number) => {
   return res.status(statusCode).json({
     status: 'ERROR',
-    message: message
+    message: message,
+    data: {}
   })
 }

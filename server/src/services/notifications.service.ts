@@ -1,5 +1,4 @@
 import { HttpException } from '@exceptions/HttpException'
-import { Story, StoryFormat } from '@/interfaces/stories.interface'
 import userModel from '@/models/users.model'
 import notificationModel from '@/models/notif.model'
 import { isEmpty } from '@utils/util'
@@ -27,8 +26,8 @@ class NotificationsService {
   public async createNotification(notificationData: CreateNotification) {
     try {
       if (isEmpty(notificationData)) throw new HttpException(400, 'Data is empty')
-      const createStories: StoryFormat = await (await this.notifications.create({ ...notificationData })).populate(this.populate)
-      return createStories
+      const createNotification: Notification = await (await this.notifications.create({ ...notificationData })).populate(this.populate)
+      return createNotification
     }
     catch (error) {
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
@@ -36,9 +35,9 @@ class NotificationsService {
   }
 
 
-  public async deleteNotification(notificationId: string): Promise<Story> {
+  public async deleteNotification(notificationId: string): Promise<Notification> {
     try {
-      const deleteNotification: Story = await this.notifications.findByIdAndDelete(notificationId)
+      const deleteNotification: Notification = await this.notifications.findByIdAndDelete(notificationId)
       if (!deleteNotification) throw new HttpException(409, 'Notification doesn\'t exist')
       return deleteNotification
     } catch (error) {

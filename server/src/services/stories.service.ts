@@ -7,6 +7,7 @@ import { statusCode } from '@/utils/statuscode'
 import { User } from '@/interfaces/users.interface'
 import { CustomError } from '@/utils/custom-error'
 import { CreateStories } from '@/dtos/stories.dto'
+
 class StoriesService {
   public stories = storiesModel
   public users = userModel
@@ -40,9 +41,42 @@ class StoriesService {
       if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty')
       const findUser: User = await this.users.findOne({_id: userId})
       if(!findUser) throw new HttpException(statusCode.CONFLICT, 'User doesn\'t exist')
-      const findPost: StoryFormat[] = await this.stories.find({ posted_by: {$in: findUser.following}, created_at: {$gt:new Date(Date.now() - 24*60*60 * 1000)} }).populate(this.populate)
-      if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
-      return findPost
+      const findStories: StoryFormat[] = await this.stories.find({
+        $or: [
+          { posted_by: {$in: findUser.following}, created_at: {$gt:new Date(Date.now() - 24*60*60 * 1000)} },
+          { posted_by: userId, created_at: {$gt:new Date(Date.now() - 24*60*60 * 1000)} }
+        ]
+      }).populate(this.populate)
+      if (!findStories) throw new HttpException(409, 'Post doesn\'t exist')
+      const stories = []
+      for(const story of findStories){
+        const existStory = stories.find(x=>x.posted_by._id===story.posted_by._id)
+        if(!existStory){
+          stories.push({
+            _id:story._id,
+            medias:story.medias.map(m=>({
+              story_id:story._id,
+              _id: m._id,
+              url:m.url,
+              is_video:m.is_video,
+              created_at:story.created_at
+          })),
+          posted_by:story.posted_by
+          })
+        }else{
+          existStory.medias = [
+            ...existStory.medias,
+            ...story.medias.map(m=>({
+              story_id: story._id,
+              _id: m._id,
+              url:m.url,
+              is_video:m.is_video,
+              created_at:story.created_at
+            }))
+          ]
+        }
+      }
+      return stories
     } catch (error) {
       throw new CustomError(error, {}, statusCode.NOT_IMPLEMENTED)
     }
@@ -86,6 +120,7 @@ class StoriesService {
           medias: { media_id: mediaId }
         }
       }, { new: true }
+      //update media 
       ).populate(this.populate)
       if (!deleteMediaById) throw new HttpException(409, 'Stories doesn\'t exist')
       return deleteMediaById

@@ -18,16 +18,25 @@ class AuthService {
   public tokens = tokenModel
   public resetpasswords = resetPasswordModel
   public populate = ['followers', 'following']
-  public async signup(userData: CreateUserDto): Promise<User> {
+  public async signup(userData: CreateUserDto): Promise<{cookie: string, createUserData: User}> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty')
 
-    const findUser: User = await this.users.findOne({ email: userData.email })
+    const findUser: User = await this.users.findOne(
+      { 
+        $or: [
+          {email: userData.email},
+          {user_name: userData.user_name}
+        ]
+      }
+      )
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`)
 
     const hashedPassword = await hash(userData.password, 10)
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword })
+    const createUserData: User = await (await this.users.create({ ...userData, password: hashedPassword })).populate(this.populate)
+    const tokenData = this.createToken(createUserData)
+    const cookie = this.createCookie(tokenData)
 
-    return createUserData
+    return {cookie, createUserData}
   }
 
   public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {

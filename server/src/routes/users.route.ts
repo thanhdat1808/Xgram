@@ -20,6 +20,7 @@ class UsersRoute implements Routes {
     this.router.delete(`${this.path}/:id`, authMiddleware, this.usersController.deleteUser)
     this.router.post(`${this.path}/follow/:id`, authMiddleware, this.usersController.followUser)
     this.router.post(`${this.path}/unfollow/:id`, authMiddleware, this.usersController.unFollowUser)
+    this.router.post(`${this.path}/removefollow/:id`, authMiddleware, this.usersController.followUser)
     this.router.post(`${this.path}/password`, authMiddleware, validationMiddleware(PasswordDto, 'body'), this.usersController.updatePassword)
     this.router.get(`${this.path}/blocked-users`, authMiddleware, this.usersController.getBlockUser)
     this.router.post(`${this.path}/blocked-users/:id`, authMiddleware, this.usersController.blockUser)

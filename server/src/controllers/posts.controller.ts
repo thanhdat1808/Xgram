@@ -17,7 +17,8 @@ class PostsController {
         const userId: string = req.user._id.valueOf()
         const page: string = req.query.page as string || '1'
         const findOnePostData: PostFormat[] = await this.postService.getHomePost(userId, page)
-        resSuccess(res, findOnePostData.map(post => formatPost(post)), 'Get posts')
+        const data = findOnePostData.length > 0 ? findOnePostData.map(post => formatPost(post)) : []
+        resSuccess(res, data, 'Get posts')
       } catch (error) {
         resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
       }
@@ -25,9 +26,11 @@ class PostsController {
 
   public getPostDetail = async (req: RequestWithUser, res: Response) => {
     try {
+      const userId: string = req.user._id.valueOf()
       const postId: string = req.params.id
-      const findOnePostData: PostFormat = await this.postService.getPostDetail(postId)
-      resSuccess(res, formatPost(findOnePostData), 'finOne')
+      const findOnePostData: PostFormat = await this.postService.getPostDetail(userId, postId)
+      const data = findOnePostData ? formatPost(findOnePostData) : {}
+      resSuccess(res, data, 'finOne')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
@@ -71,7 +74,8 @@ class PostsController {
     try {
       const postId: string = req.params.id
       const commentPost: CommentFormat[] = await this.postService.getComment(postId)
-      resSuccess(res, commentPost.map(comment => formatComment(comment)), 'Get comment')
+      const data = commentPost.length > 0 ? commentPost.map(comment => formatComment(comment)) : []
+      resSuccess(res, data, 'Get comment')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
@@ -83,9 +87,9 @@ class PostsController {
       const postId: string = req.params.id
       const comment: string = req.body.data
       const isImage: string = req.body.is_image
-      console.log(isImage)
       const addComment: CommentFormat = await this.postService.addComment(userId, postId, comment, isImage)
-      resSuccess(res, formatComment(addComment), 'Add success')
+      const data = addComment ? formatComment(addComment) : {}
+      resSuccess(res, data, 'Add success')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
@@ -96,8 +100,9 @@ class PostsController {
       const postId: string = req.params.post_id
       const commentId: string = req.params.comment_id
       const dataUpdate: string = req.body.data
-      const postUpdate: PostFormat = await this.postService.editComment(postId, commentId, dataUpdate)
-      resSuccess(res, formatPost(postUpdate), 'Update')
+      const editComment: CommentFormat = await this.postService.editComment(postId, commentId, dataUpdate)
+      const data = editComment ? formatComment(editComment) : {}
+      resSuccess(res, data, 'Update')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }

@@ -5,6 +5,7 @@ export interface User {
   password: string
   reset_password: string
   full_name: string
+  user_name: string
   avatar_url: string
   cover_url: string
   phone_number: number
@@ -22,6 +23,7 @@ export interface UserFormat {
   email: string
   password: string
   full_name: string
+  user_name: string
   avatar_url: string
   cover_url: string
   phone_number: number

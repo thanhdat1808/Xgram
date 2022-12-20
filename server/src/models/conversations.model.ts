@@ -6,10 +6,10 @@ const conversationsSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Messages'
   },
-  user: {
+  user: [{
     type: Schema.Types.ObjectId,
-    ref: 'Users'
-  },
+    ref: 'User'
+  }],
   created_at: {
     type: Date,
     default: Date.now

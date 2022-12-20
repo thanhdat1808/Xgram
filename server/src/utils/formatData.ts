@@ -1,4 +1,4 @@
-import { TMedia } from '@/dtos/posts.dto'
+import { TMedia, TMediaStory } from '@/dtos/posts.dto'
 import { ConversationFormatInterface } from '@/interfaces/conversations.interface'
 import { MessageFormatInterface } from '@/interfaces/messages.interface'
 import { Notification } from '@/interfaces/notifications.interface'
@@ -32,6 +32,15 @@ const formatMedia = (media: TMedia) => {
     created_at: media.created_at
   }
 }
+const formatStoryMedia = (media: TMediaStory) => {
+  return {
+    story_id: media.story_id,
+    media_id: media._id,
+    url: media.url,
+    is_video: media.is_video,
+    created_at: media.created_at
+  }
+}
 export const formatComment = (comment: CommentFormat) => {
   return {
     comment_id: comment._id,
@@ -46,6 +55,7 @@ export const formatUser = (user: User) => {
     user_id: user._id,
     email: user.email,
     full_name: user.full_name,
+    user_name: user.user_name,
     avatar_url: user.avatar_url,
     cover_url: user.cover_url,
     bio: user.bio,
@@ -76,19 +86,34 @@ export const formatPost = (post: PostFormat) => {
 export const formatStories = (story: StoryFormat) => {
   return {
     story_id: story._id,
-    medias: story.medias.map(media => formatMedia(media)),
+    medias: story.medias.map(media => formatStoryMedia(media)),
     posted_by: formatUser(story.posted_by),
     created_at: story.created_at,
     updated_at: story.updated_at
   }
 }
 export const formatMessage = (message: MessageFormatInterface) => {
+  let content
+  switch (message.type) {
+    case 'text' ||'image'||'video'||'sticker':
+      content = message.message
+      break
+    case 'post':
+      content = message.post
+      break
+    case 'story':
+      content = message.story
+      break
+    default:
+      break
+  }
   return {
     message_id: message._id,
-    message: message.message,
+    message: content,
     status: message.status,
     type: message.type,
-    sent_by: formatUser(message.sent_by)
+    sent_by: formatUser(message.sent_by),
+    sent_to: formatUser(message.sent_to)
   }
 }
 export const formatConversation = (conversation: ConversationFormatInterface) => {

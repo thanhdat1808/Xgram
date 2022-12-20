@@ -60,17 +60,17 @@ class UserService {
 
   public async findUserById(userId: string): Promise<User> {
     if (isEmpty(userId)) throw new CustomError('UserId is empty', {}, statusCode.BAD_REQUEST)
-    const findUser: User = await this.users.findOne({ _id: userId }).populate(this.populate)
+    const findUser: User = await this.users.findOne({user_name: userId}).populate(this.populate) || await this.users.findById(userId).populate(this.populate)
     if (!findUser) throw new CustomError('User doesn`t exist', {}, statusCode.CONFLICT)
     return findUser
   }
 
   public async getProfilePosts(userId: string, page: string): Promise<PostFormat[]> {
     if (isEmpty(userId)) throw new CustomError('User id is empty', {}, statusCode.BAD_REQUEST)
-    const findUser: User = await this.users.findById(userId)
+    const findUser: User = await this.users.findOne({user_name: userId}).populate(this.populate) || await this.users.findById(userId).populate(this.populate)
     if(!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
     const profilePosts: PostFormat[] = await this.posts.find({
-      posted_by: userId
+      posted_by: findUser._id
     }).limit(this.perPage).skip((+page-1)*this.perPage).sort('created_at').populate(this.populatePost)
     return profilePosts
   }
@@ -106,6 +106,7 @@ class UserService {
 
   public async followUser(userId: string, followId: string): Promise<User> {
     try {
+      if(userId===followId) throw new CustomError('Id is confict', {}, statusCode.CONFLICT)
       const findUser = await this.users.findOne({ _id: userId })
       if (!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
       const followUser = await this.users.findOne({ _id: followId })
@@ -117,8 +118,10 @@ class UserService {
         },
         {
           $push: { following: followId }
+        }, {
+          new: true
         }
-      )
+      ).populate(this.populate)
       await this.users.findOneAndUpdate(
         {
           _id: followId
@@ -150,13 +153,45 @@ class UserService {
         {
           $pull: { following: followId }
         }
-      )
+      ).populate(this.populate)
       await this.users.findOneAndUpdate(
         {
           _id: followId
         },
         {
           $pull: { followers: userId }
+        }, {
+          new: true
+        }
+      )
+      return unFollow
+    } catch (error) {
+      if(error.code) throw error
+      throw new CustomError('Fail to search DB', {}, statusCode.INTERNAL_SERVER_ERROR)
+    }
+  }
+
+  public async removeFollowUser(userId: string, followId: string): Promise<User> {
+    try {
+      const findUser = await this.users.findOne({ _id: userId })
+      if (!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
+      const followUser = await this.users.findOne({ _id: followId })
+      if (!followUser) throw new CustomError('User follow doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
+      if (findUser.following.indexOf(followId as never) === -1) throw new CustomError('Not follow this user', {}, statusCode.UNPROCESSABLE_ENTITY)
+      const unFollow: User = await this.users.findOneAndUpdate(
+        {
+          _id: userId
+        },
+        {
+          $pull: { followers: followId }
+        }
+      ).populate(this.populate)
+      await this.users.findOneAndUpdate(
+        {
+          _id: followId
+        },
+        {
+          $pull: { following: userId }
         }, {
           new: true
         }
@@ -203,7 +238,10 @@ class UserService {
 
   public async searchUsers(userId: string, name: string, page: string): Promise<User[]> {
     const searchUsers: User[] = await this.users.find({
-      full_name: new RegExp(name, 'i'),
+      $or: [
+        {full_name: new RegExp(name, 'i')},
+        {user_name: new RegExp(name, 'i')}
+      ],
       _id: {$ne: userId}
     }).limit(this.perPage).skip((+page-1)*this.perPage).sort('created_at').populate(this.populate)
     if(!searchUsers.length) throw new CustomError('No matching results', {}, statusCode.BAD_REQUEST)

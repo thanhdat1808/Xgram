@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import { Routes } from '@interfaces/routes.interface'
-import authMiddleware from '@middlewares/auth.middleware'
 import multer from 'multer'
 import { v4 as uuidv4 } from 'uuid'
 import UploadsController from '@/controllers/uploads.controller'
@@ -25,7 +24,7 @@ class UploadsRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post(`${this.path}`, authMiddleware, this.upload.array('medias'), this.uploadsController.upload)
+    this.router.post(`${this.path}`, this.upload.array('medias'), this.uploadsController.upload)
   }
 }
 
