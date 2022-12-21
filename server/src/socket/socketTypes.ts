@@ -5,3 +5,5 @@ type UserSocket = {
   socket: Socket
 }
 export type AppData = UserSocket[]
+
+export const eventNames = ['seenMessage', 'sendMessage', 'newUserOnline', 'disconnect']

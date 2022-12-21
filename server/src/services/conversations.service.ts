@@ -61,6 +61,13 @@ class ConversationService {
     return updateMessage
   }
 
+  public async updateStatusMessage(messageId: string, status: number): Promise<MessageFormatInterface> {
+    if(isEmpty(messageId)) throw new CustomError('Message id is empty', {}, 500)
+    const updateMessage: MessageFormatInterface = await this.messages.findByIdAndUpdate(messageId, { status }, {new: true}).populate(this.populateMessage)
+    if(isEmpty(updateMessage)) throw new CustomError('Message not exist', {}, statusCode.CONFLICT)
+    return updateMessage
+  }
+
   public async deleteMessage(messageId: string): Promise<void> {
     const deleteMessage = await this.messages.findByIdAndDelete(messageId)
     if(isEmpty(deleteMessage)) throw new CustomError('Message not exist', {}, statusCode.CONFLICT)

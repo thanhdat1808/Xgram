@@ -9,7 +9,6 @@ export default (io: Server) => {
     const eventHandlers = [
       events(app, socket, io)
     ]
-
     // Bind events to handlers
     eventHandlers.forEach(handler => {
       for (const eventName in handler) {     

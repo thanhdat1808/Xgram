@@ -4,31 +4,51 @@ import userModel from '@/models/users.model'
 import { Server, Socket } from 'socket.io'
 import { AppData } from './socketTypes'
 import ConversationService from '@/services/conversations.service'
+import UserService from '@/services/users.service'
 import { CreateMessage } from '@/interfaces/messages.interface'
-import { formatMessage } from '@/utils/formatData'
+import { formatMessage, formatUser } from '@/utils/formatData'
 
 const conversations = new ConversationService()
+const users = new UserService
 const events = (app: AppData, socket: Socket, io: Server) => {
   
   const handler = {
     onlineUsers: onlineUsers(app, socket, io),
-    clear : clear(app, socket, io),
-    sendMessage : sendMessage(app, socket, io),
-    disconnect : disconnect(app, socket, io)
+    sendMessage: sendMessage(app, socket, io),
+    disconnect: disconnect(app, socket, io),
+    seenMessage: seenMessage(app, socket, io)
   }
   return handler
 }
 
+const findSocket = (app: AppData, userId: string) => {
+  const index = app.findIndex(user => user.user_id === userId)
+  return app[index].socket
+}
+
+const updateStatusUser = async (sockets: string[], user: User, io: Server) => {
+  sockets.forEach(socket => {
+    io.to(socket).emit('updateStatusUser', {socket: socket, user: formatUser(user)})
+  })
+}
+
 // Events
 const onlineUsers = (app: AppData, socket: Socket, io: Server) => async (data: {id: string}) => {
-  app.push({user_id: data.id, socket: socket})
-  const infoUser: User = await userModel.findById(data.id)
-  const friends: string[] = infoUser.followers.filter(user => infoUser.following.includes(user))
-  const sockets = []
-  app.forEach(user => {
-    if(friends.includes(user.user_id)) sockets.push(user.user_id)
-  })
-  io.to(sockets).emit('newUserOnline', {socket: socket.id, user: infoUser})
+  try {
+    console.log('Online users...')
+    app.push({user_id: data.id, socket: socket})
+    console.log(app)
+    const infoUser: User = await users.findUserById(data.id)
+    if(!infoUser) return
+    const friends: string[] = infoUser.followers
+    const sockets = [socket.id]
+    app.forEach(user => {
+      if(friends.includes(user.user_id)) sockets.push(user.socket.id)
+    })
+    updateStatusUser(sockets, infoUser, io)
+  } catch (error) {
+    console.log({error})
+  }
 }
 const sendMessage = (app: AppData, socket: Socket, io: Server) => async (data: SendMessage) => {
   let dataMessage: CreateMessage
@@ -56,18 +76,25 @@ const sendMessage = (app: AppData, socket: Socket, io: Server) => async (data: S
     }
     const message: MessageFormatInterface = await conversations.createMessage(dataMessage)
     await conversations.updateConversation(message.conversation_id, message._id)
-    io.to(socket.id).emit('sendMessage', {
+    
+    io.to(findSocket(app, data.sent_to).id).emit('sendMessage', {
       message : formatMessage(message)
     })
   } catch (error) {
     
   }
 }
-const disconnect = (app, socket, io) => () => {
-  delete app.allRooms[socket.roomId].users[socket.userId]
-  io.to(socket.roomId).emit('userdisconnect', app.allRooms[socket.roomId].users)
+const seenMessage = (app: AppData, socket: Socket, io: Server) => async (data: {conversation_id: string, user_id: string}) => {
+  try {
+    const updateSeen = await conversations.updateStatusMessage(data.conversation_id, 2)
+    io.to(findSocket(app, data.user_id).id).emit('seenMessage', {
+      message: formatMessage(updateSeen)
+    })
+  } catch (error) {
+    
+  }
 }
-const clear = (app, socket, io) => () => {
-  io.to(socket.roomId).emit('clear','')
+const disconnect = (app, socket, io) => () => {
+  console.log('Disconnect...')
 }
 export default events
