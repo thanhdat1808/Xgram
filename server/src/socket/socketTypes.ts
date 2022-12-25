@@ -1,9 +1,8 @@
+import { UserFormat } from '@/interfaces/users.interface'
 import { Socket } from 'socket.io'
 
 type UserSocket = {
-  user_id: string,
+  user: UserFormat,
   socket: Socket
 }
 export type AppData = UserSocket[]
-
-export const eventNames = ['seenMessage', 'sendMessage', 'newUserOnline', 'disconnect']

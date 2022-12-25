@@ -5,14 +5,22 @@ import postModel from '@models/posts.model'
 import userModel from '@/models/users.model'
 import commentModel from '@/models/comments.model'
 import { isEmpty } from '@utils/util'
-import { statusCode } from '@/utils/statuscode'
+import { NotificationType, statusCode } from '@/utils/statuscode'
 import { User } from '@/interfaces/users.interface'
 import { CustomError } from '@/utils/custom-error'
+import NotificationsService from './notifications.service'
+import { CreateNotification } from '@/interfaces/notifications.interface'
+import { sendNotification } from '@/socket/events'
+import { app } from '@/socket/index.socket'
+import { io } from '@/server'
+
 class PostService {
   public posts = postModel
   public users = userModel
   public comments = commentModel
+  public notificationService = new NotificationsService()
   public perPage = 10
+  public regex = /(?<=@)\w+/g
   public populate = [{
     path: 'posted_by',
     populate: [
@@ -104,9 +112,31 @@ class PostService {
     try {
       if (isEmpty(postData)) throw new HttpException(400, 'postData is empty')
       const createPost: PostFormat = await (await this.posts.create({ ...postData })).populate(this.populate)
+      const mention = postData.message.match(this.regex)
+      if(mention) {
+        const findUser: User[] = await this.users.find({ username: { $in: mention } }).populate(['followers', 'following'])
+        if(findUser) {
+          findUser.map(user => async () => {
+            const notificationData: CreateNotification = {
+              type: NotificationType.MENTION_POST,
+              ref_post: createPost._id,
+              ref_user: null,
+              ref_comment: null,
+              user: createPost.posted_by._id,
+              to_user: user._id,
+              post_id: createPost._id
+            }
+            const createNotification = await this.notificationService.createNotification(notificationData)
+            if(createNotification) {
+              sendNotification(app, user._id.valueOf(), createNotification, io)
+            }
+          })
+        }
+      }
       return createPost
     }
     catch (error) {
+      console.log(error)
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
   }
@@ -154,6 +184,42 @@ class PostService {
         }
       }, { new: true }).populate(this.populate)
       const getComment: CommentFormat = await this.comments.findById(newComment._id).populate(this.populateComment)
+      if(getComment) {
+        const createNotif = await this.notificationService.createNotification({
+          user: userId,
+          to_user: findPost.posted_by,
+          type: NotificationType.COMMENT,
+          post_id: findPost._id,
+          ref_post: null,
+          ref_comment: getComment._id,
+          ref_user: null
+        })
+        if(createNotif) {
+          sendNotification(app, findPost.posted_by.valueOf(), createNotif, io)
+        }
+        const mentions = comment.match(this.regex)
+        if(mentions.length) {
+          const users = await this.users.find({ username: { $in: mentions } })
+          if(users) {
+            users.forEach(async (user: User) => {
+              if(user._id !== userId) {
+                const createNotification = await this.notificationService.createNotification({
+                  user: user._id,
+                  to_user: userId,
+                  type: NotificationType.MENTION_COMMENT,
+                  post_id: findPost._id,
+                  ref_post: null,
+                  ref_comment: getComment._id,
+                  ref_user: null
+                })
+                if(createNotification) {
+                  sendNotification(app, user._id.valueOf(), createNotification, io)
+                }
+              }
+            })
+          }
+        }
+      }
       return getComment
     } catch (error) {
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
@@ -189,14 +255,29 @@ class PostService {
     if (!findPost) throw new HttpException(409, 'Post doesn\'t exist')
     const checkUser: number = findPost.reactions.filter(e => e.reacted_by == reacted_by).length
     if (checkUser) throw new HttpException(statusCode.CONFLICT, 'User is exited')
-    const posts: PostFormat = await this.posts.findByIdAndUpdate(postId, {
+    const post: PostFormat = await this.posts.findByIdAndUpdate(postId, {
       $push: {
         reactions: { reacted_by: reacted_by }
       }
     }, {
       new: true
     }).populate(this.populate)
-    return posts
+    if(post && post.posted_by._id.valueOf() !== reacted_by) {
+      const data: CreateNotification = {
+        user: reacted_by,
+        to_user: post.posted_by._id,
+        type: NotificationType.REACT,
+        post_id: post._id,
+        ref_post: post._id,
+        ref_comment: null,
+        ref_user: null
+      }
+      const createNotif = await this.notificationService.createNotification(data)
+      if(createNotif) {
+        sendNotification(app, post._id.valueOf(), createNotif, io)
+      }
+    }
+    return post
   }
 
   public async unReaction(postId: string, reacted_by: string): Promise<PostFormat> {

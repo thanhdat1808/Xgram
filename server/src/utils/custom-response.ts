@@ -15,3 +15,9 @@ export const resError = (res: Response, message: string, statusCode: number) => 
     data: {}
   })
 }
+export const formatRes = (data: Object, status: string) => {
+  return {
+    status: status,
+    data: data
+  }
+}

@@ -1,9 +1,9 @@
 import { Server, Socket } from 'socket.io'
 import events from './events'
 import { AppData } from './socketTypes'
-const app: AppData = []
+
+export const app: AppData = []
 export default (io: Server) => {
-  
   io.on('connection', (socket: Socket) => {
     console.log('Connection...')
     const eventHandlers = [
@@ -11,7 +11,7 @@ export default (io: Server) => {
     ]
     // Bind events to handlers
     eventHandlers.forEach(handler => {
-      for (const eventName in handler) {     
+      for (const eventName in handler) {
         socket.on(eventName, handler[eventName])
       }
     })

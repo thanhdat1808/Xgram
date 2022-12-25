@@ -1,15 +1,16 @@
 import { TMedia, TMediaStory } from '@/dtos/posts.dto'
-import { ConversationFormatInterface } from '@/interfaces/conversations.interface'
+import { ConversationFormatInterface, ConversationInterface } from '@/interfaces/conversations.interface'
 import { MessageFormatInterface } from '@/interfaces/messages.interface'
 import { Notification } from '@/interfaces/notifications.interface'
 import { CommentFormat, PostFormat } from '@/interfaces/posts.interface'
 import { StoryFormat } from '@/interfaces/stories.interface'
-import { User } from '@/interfaces/users.interface'
+import { User, UserFormat } from '@/interfaces/users.interface'
 
-const formatFollow = (user: User) => {
+export const formatFollow = (user: User) => {
   return {
     user_id: user._id,
     email: user.email,
+    user_name: user.user_name,
     full_name: user.full_name,
     avatar_url: user.avatar_url,
     cover_url: user.cover_url,
@@ -46,11 +47,11 @@ export const formatComment = (comment: CommentFormat) => {
     comment_id: comment._id,
     comment: comment.comment,
     is_image: comment.is_image,
-    commented_by: formatUser(comment.commented_by),
+    commented_by: formatFollow(comment.commented_by),
     created_at: comment.created_at
   }
 }
-export const formatUser = (user: User) => {
+export const formatUser = (user: UserFormat) => {
   return {
     user_id: user._id,
     email: user.email,
@@ -76,8 +77,8 @@ export const formatPost = (post: PostFormat) => {
     tags: post.tags,
     privacy: post.privacy,
     medias: post.medias.map(media => formatMedia(media)),
-    posted_by: formatUser(post.posted_by),
-    reactions: post.reactions.map(reaction => ({reacted_by: formatUser(reaction.reacted_by)})),
+    posted_by: formatFollow(post.posted_by),
+    reactions: post.reactions.map(reaction => ({reacted_by: formatFollow(reaction.reacted_by)})),
     comments: post.comments.map(comment => formatComment(comment as unknown as CommentFormat)),
     created_at: post.created_at,
     updated_at: post.updated_at
@@ -87,7 +88,7 @@ export const formatStories = (story: StoryFormat) => {
   return {
     story_id: story._id,
     medias: story.medias.map(media => formatStoryMedia(media)),
-    posted_by: formatUser(story.posted_by),
+    posted_by: formatFollow(story.posted_by),
     created_at: story.created_at,
     updated_at: story.updated_at
   }
@@ -109,18 +110,20 @@ export const formatMessage = (message: MessageFormatInterface) => {
   }
   return {
     message_id: message._id,
-    message: content,
+    conversation_id: message.conversation_id,
+    message: message.message,
+    ref_data: content,
     status: message.status,
     type: message.type,
-    sent_by: formatUser(message.sent_by),
-    sent_to: formatUser(message.sent_to)
+    sent_by: formatFollow(message.sent_by),
+    sent_to: formatFollow(message.sent_to)
   }
 }
-export const formatConversation = (conversation: ConversationFormatInterface) => {
+export const formatConversation = (conversation: ConversationInterface) => {
   return {
     conversation_id: conversation._id,
-    last_message: formatMessage(conversation.last_message),
-    user: formatUser(conversation.user),
+    last_message: conversation.last_message ? formatMessage(conversation.last_message) : null,
+    user: formatFollow(conversation.user[0]),
     created_at: conversation.created_at,
     updated_at: conversation.updated_at
   }

@@ -37,6 +37,7 @@ export interface UpdateMessage {
 export interface SendMessage {
   conversation_id: string
   message: string
+  ref_id: string
   type: string
   sent_by: string
   sent_to: string

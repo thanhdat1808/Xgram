@@ -4,7 +4,7 @@ import { SECRET_KEY } from '@config'
 import { CreateUserDto } from '@dtos/users.dto'
 import { HttpException } from '@exceptions/HttpException'
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface'
-import { User } from '@interfaces/users.interface'
+import { User, UserFormat } from '@interfaces/users.interface'
 import userModel from '@models/users.model'
 import { isEmpty } from '@utils/util'
 import { CustomError } from '@/utils/custom-error'
@@ -18,7 +18,7 @@ class AuthService {
   public tokens = tokenModel
   public resetpasswords = resetPasswordModel
   public populate = ['followers', 'following']
-  public async signup(userData: CreateUserDto): Promise<{cookie: string, createUserData: User}> {
+  public async signup(userData: CreateUserDto): Promise<{cookie: string, createUserData: UserFormat}> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty')
 
     const findUser: User = await this.users.findOne(
@@ -32,17 +32,22 @@ class AuthService {
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`)
 
     const hashedPassword = await hash(userData.password, 10)
-    const createUserData: User = await (await this.users.create({ ...userData, password: hashedPassword })).populate(this.populate)
+    const createUserData: UserFormat = await (await this.users.create({ ...userData, password: hashedPassword })).populate(this.populate)
     const tokenData = this.createToken(createUserData)
     const cookie = this.createCookie(tokenData)
 
     return {cookie, createUserData}
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: UserFormat }> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty')
 
-    const findUser: User = await this.users.findOne({ email: userData.email }).populate(this.populate)
+    const findUser: UserFormat = await this.users.findOne({ 
+      $or: [
+        {email: userData.email},
+        {user_name: userData.email}
+    ]
+    }).populate(this.populate)
     if (!findUser) throw new HttpException(409, `This email ${userData.email} was not found`)
 
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password)
@@ -54,16 +59,16 @@ class AuthService {
     return { cookie, findUser }
   }
 
-  public async logout(userData: User): Promise<User> {
+  public async logout(userData: User): Promise<UserFormat> {
     if (isEmpty(userData)) throw new HttpException(400, 'userData is empty')
 
-    const findUser: User = await this.users.findOne({ email: userData.email, password: userData.password })
+    const findUser: UserFormat = await this.users.findOne({ email: userData.email, password: userData.password }).populate(this.populate)
     if (!findUser) throw new HttpException(409, `This email ${userData.email} was not found`)
 
     return findUser
   }
 
-  public createToken(user: User): TokenData {
+  public createToken(user: UserFormat): TokenData {
     const dataStoredInToken: DataStoredInToken = { _id: user._id }
     const secretKey: string = SECRET_KEY
     const expiresIn: number = 600 * 60
@@ -78,7 +83,7 @@ class AuthService {
   public async forgotPassword(email: string): Promise<void> {
     const findUser: User = await this.users.findOne({ email: email })
     if(!findUser) throw new CustomError(`This email ${email} was not found`, {}, statusCode.BAD_REQUEST)
-    const tokenData = this.createToken({_id: 'id'} as User)  
+    const tokenData = this.createToken({_id: 'id'} as UserFormat)  
     await this.tokens.create({ user_id: findUser._id, token: tokenData.token })
     const link = `${process.env.URL}/reset-password/${findUser._id}/${tokenData.token}`
     const contentMail = `Click on the link below to create a new password \n ${link}`
@@ -99,8 +104,8 @@ class AuthService {
     return
   }
 
-  public async loginResetPassword(email: string, password: string): Promise<{ cookie: string; findUser: User }> {
-    const findUser: User = await this.resetpasswords.findOne({ email: email }).populate(this.populate)
+  public async loginResetPassword(email: string, password: string): Promise<{ cookie: string; findUser: UserFormat }> {
+    const findUser: UserFormat = await this.resetpasswords.findOne({ email: email }).populate(this.populate)
     if (!findUser) throw new HttpException(409, `This email ${email} was not found`)
 
     const isPasswordMatching: boolean = await compare(password, findUser.password)

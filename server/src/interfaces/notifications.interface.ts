@@ -13,9 +13,10 @@ export interface Notification {
 }
 export interface CreateNotification {
   type: string
-  ref_post: PostFormat
-  ref_user: UserFormat
-  ref_comment: CommentFormat
+  ref_post: string | null
+  ref_user: string | null
+  ref_comment: string | null
   user: string
-  post_id: string
+  to_user: string
+  post_id: string | null
 }

@@ -19,7 +19,7 @@ validateEnv()
 const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute(), new PostsRoute(), new UploadsRoute(), new StoriesRoute(), new ConversationsRouter(), new NotificationsRouter()])
 
 const server = createServer(app.app)
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: '*'
   }

@@ -5,13 +5,26 @@ import { CustomError } from '@/utils/custom-error'
 import { ConversationFormatInterface, ConversationInterface, CreateConversation } from '@/interfaces/conversations.interface'
 import { CreateMessage, MessageFormatInterface, UpdateMessage } from '@/interfaces/messages.interface'
 import messageModel from '@/models/message.model'
+
 class ConversationService {
   public conversations = conversationsModel
   public messages = messageModel
   public populate = ['last_message', 'user']
-  public populateMessage = ['post', 'story', 'sent_by', 'to']
+  public populateMessage = [{
+    path: 'post',
+    populate: ['posted_by', 'comments', 'reactions']
+  }, {
+    path: 'story',
+    populate: ['posted_by']
+  }, {
+    path: 'sent_by',
+    populate: ['followers', 'following']
+  }, {
+    path: 'sent_to',
+    populate: ['followers', 'following']
+  }]
 
-  public async getConversations(userId: string): Promise<ConversationFormatInterface[]> {
+  public async getConversations(userId: string): Promise<ConversationInterface[]> {
     const findConversations: ConversationInterface[] = await this.conversations.find({ user: userId }).populate(this.populate)
     if(!findConversations) return []
     findConversations.map(conversation => {
@@ -19,24 +32,36 @@ class ConversationService {
       delete conversation.user
       conversation.user = user
     })
-    return findConversations as unknown as ConversationFormatInterface[]
+    return findConversations
   }
-  public async createConversation(dataConversation: CreateConversation): Promise<ConversationFormatInterface> {
+  public async createConversation(userId: string, dataConversation: CreateConversation): Promise<ConversationInterface> {
     if (isEmpty(dataConversation)) throw new CustomError('message id is empty', {}, statusCode.BAD_REQUEST)
-    const checkExistConversation: ConversationFormatInterface = await this.conversations.findOne({ user: dataConversation.user })
-    if(checkExistConversation) return checkExistConversation
-    const createConversation: ConversationFormatInterface = await (await this.conversations.create(dataConversation)).populate(this.populate)
-    return createConversation
+    console.log(dataConversation)
+    const checkExistConversation: ConversationInterface = await this.conversations.findOne({ user: dataConversation.user }).populate(this.populate)
+    console.log(checkExistConversation)
+    if(checkExistConversation) {
+      const user = checkExistConversation.user.filter(user => user._id.valueOf() !== userId)
+      delete checkExistConversation.user
+      checkExistConversation.user = user
+      return checkExistConversation
+    } 
+    const createConversation: ConversationInterface = await (await this.conversations.create(dataConversation)).populate(this.populate)
+    console.log(createConversation)
+    if(createConversation) {
+      const user = createConversation.user.filter(user => user._id.valueOf() !== userId)
+      delete createConversation.user
+      createConversation.user = user
+      return createConversation
+    } 
   }
 
   public async updateConversation(conversationId: string, last_message: string): Promise<ConversationFormatInterface> {
-    if (isEmpty(last_message)) throw new CustomError('message id is empty', {}, statusCode.BAD_REQUEST)
     const updateConversation: ConversationFormatInterface = await this.conversations.findByIdAndUpdate(conversationId, { last_message, updated_at: Date.now() }, { new: true }).populate(this.populate)
     return updateConversation
   }
 
-  public async deleteConversation(conversationId: string): Promise<ConversationFormatInterface> {
-    const deleteConversation: ConversationFormatInterface = await this.conversations.findByIdAndDelete(conversationId)
+  public async deleteConversation(conversationId: string): Promise<ConversationInterface> {
+    const deleteConversation: ConversationInterface = await this.conversations.findByIdAndDelete(conversationId).populate(this.populate)
     if(!deleteConversation) throw new CustomError('Conversation not exist', {}, statusCode.CONFLICT)
     return deleteConversation
   }
@@ -45,7 +70,7 @@ class ConversationService {
     if (isEmpty(conversationId)) throw new CustomError('conversation id is empty', {}, statusCode.BAD_REQUEST)
     const findConversation: ConversationFormatInterface = await this.conversations.findById(conversationId)
     if (!findConversation) throw new CustomError('conversation is empty', {}, statusCode.CONFLICT)
-    const getMessage: MessageFormatInterface[] = await this.messages.find({ conversation_id: conversationId })
+    const getMessage: MessageFormatInterface[] = await this.messages.find({ conversation_id: conversationId }).sort({'created_at': -1}).populate(this.populateMessage)
     return getMessage
   }
   public async createMessage(dataMessage: CreateMessage): Promise<MessageFormatInterface> {

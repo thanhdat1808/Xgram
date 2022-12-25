@@ -10,7 +10,7 @@ class UploadService {
   private async addTag(url: string) {
     try {
       const data = new FormData()
-      data.append('url', url)
+      data.append('url', `${process.env.URL}${url}`)
       const tag = await axios(process.env.CLASSIFY_API, {
         method: 'POST',
         data: data
@@ -23,11 +23,12 @@ class UploadService {
 
   public async uploads(files: Express.Multer.File[]) {
     try {
+      console.log(files)
       if (isEmpty(files)) throw new HttpException(400, 'Medias is empty')
       const medias = []
       for (const element of files) {
         const mimetype: string = element['mimetype']
-        const url = `${process.env.URL}/uploads/${element['filename']}`
+        const url = `/uploads/${element['filename']}`
         const is_video: boolean = this.isVideo.includes(mimetype.split('/')[1])
         let item = new Object()
         item = {

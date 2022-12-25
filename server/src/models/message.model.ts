@@ -30,7 +30,7 @@ const messageSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-  to: {
+  sent_to: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },

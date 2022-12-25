@@ -13,9 +13,6 @@ export class CreateUserDto {
   @IsString()
   full_name: string
 
-  @IsString()
-  avatar_url: string
-
   @IsNumber()
   gender: number
 
@@ -56,7 +53,7 @@ export class SetFollowingUserDto {
   following: string[]
 }
 export class LoginUser {
-  @IsEmail()
+  @IsString()
   email: string
   @IsString()
   password: string

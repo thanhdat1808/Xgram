@@ -16,7 +16,7 @@ class NotificationsService {
       if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty')
       const findUser: User = await this.users.findOne({_id: userId})
       if(!findUser) throw new HttpException(statusCode.CONFLICT, 'User doesn\'t exist')
-      const notif: Notification[] = await this.notifications.find({ user: userId }).populate(this.populate)
+      const notif: Notification[] = await this.notifications.find({ to_user: userId }).populate(this.populate)
       return notif
     } catch (error) {
       throw new CustomError(error, {}, statusCode.NOT_IMPLEMENTED)
@@ -33,7 +33,6 @@ class NotificationsService {
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
   }
-
 
   public async deleteNotification(notificationId: string): Promise<Notification> {
     try {

@@ -4,7 +4,7 @@ import { MessageInterface } from '@/interfaces/messages.interface'
 const conversationsSchema: Schema = new Schema({
   last_message: {
     type: Schema.Types.ObjectId,
-    ref: 'Messages'
+    ref: 'Message'
   },
   user: [{
     type: Schema.Types.ObjectId,

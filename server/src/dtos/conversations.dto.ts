@@ -1,5 +1,6 @@
-import { MessageInterface } from '@/interfaces/messages.interface'
+import { IsString } from 'class-validator'
 
 export class CreateConversationDto {
-  message: MessageInterface
+  @IsString()
+  user_id: string
 }

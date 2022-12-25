@@ -114,3 +114,17 @@ export const statusCode = {
   INSUFFICIENT_STORAGE: 507,
   NETWORK_AUTHENTICATION_REQUIRED: 511
 }
+
+export enum MessageStatus {
+  SENDING,
+  ERROR,
+  SENT,
+  READ,
+}
+export const NotificationType = {
+  REACT: 'react',
+  FOLLOW: 'follow',
+  COMMENT: 'comment',
+  MENTION_POST: 'mention_post',
+  MENTION_COMMENT: 'mention_comment'
+}

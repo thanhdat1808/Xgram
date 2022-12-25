@@ -3,7 +3,6 @@ export interface User {
   _id: string
   email: string
   password: string
-  reset_password: string
   full_name: string
   user_name: string
   avatar_url: string
@@ -31,8 +30,8 @@ export interface UserFormat {
   blocked_users: User[]
   bio: string
   websites: []
-  followers: []
-  following: []
+  followers: User[]
+  following: User[]
   gender: number
   created_at: Date
   updated_at: Date

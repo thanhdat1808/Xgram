@@ -7,9 +7,12 @@ import { isEmpty } from '@utils/util'
 import { CustomError } from '@/utils/custom-error'
 import { statusCode } from '@/utils/statuscode'
 import { PostFormat } from '@/interfaces/posts.interface'
+import NotificationsService from './notifications.service'
+
 class UserService {
   public users = userModel
   public posts = postModel
+  public notificationService = new NotificationsService()
   public populate = ['followers', 'following']
   public perPage = 10
   public populatePost = [{
@@ -58,9 +61,9 @@ class UserService {
     return users
   }
 
-  public async findUserById(userId: string): Promise<User> {
+  public async findUserById(userId: string): Promise<UserFormat> {
     if (isEmpty(userId)) throw new CustomError('UserId is empty', {}, statusCode.BAD_REQUEST)
-    const findUser: User = await this.users.findOne({user_name: userId}).populate(this.populate) || await this.users.findById(userId).populate(this.populate)
+    const findUser: UserFormat = await this.users.findOne({user_name: userId}).populate(this.populate) || await this.users.findById(userId).populate(this.populate)
     if (!findUser) throw new CustomError('User doesn`t exist', {}, statusCode.CONFLICT)
     return findUser
   }
@@ -82,29 +85,28 @@ class UserService {
     const isPasswordMatching: boolean = await compare(dataPassword.old_password, userData.password)
     if (!isPasswordMatching) throw new CustomError('Password is not matching', {}, statusCode.CONFLICT)
     const hashedPassword = await hash(dataPassword.new_password, 10)
-    const updateUser: User = await this.users.findOneAndUpdate({ _id: userId }, { password: hashedPassword, updated_at: Date.now() }, { new: true })
+    const updateUser: UserFormat = await this.users.findOneAndUpdate({ _id: userId }, { password: hashedPassword, updated_at: Date.now() }, { new: true }).populate(this.populate)
     return updateUser
   }
 
-  public async updateUser(userId: string, userData: UpdateUserDto): Promise<User> {
+  public async updateUser(userId: string, userData: UpdateUserDto): Promise<UserFormat> {
     if (isEmpty(userData)) throw new CustomError('Data is empty', {}, statusCode.BAD_REQUEST)
     if (userData.email) {
       const findUser: User = await this.users.findOne({ email: userData.email })
       if (findUser && findUser._id != userId) throw new CustomError(`This email ${userData.email} already exists`, {}, statusCode.CONFLICT)
     }
-    const updateUserById: User = await this.users.findOneAndUpdate({ _id: userId }, { ...userData, updated_at: Date.now() }, { new: true}).populate(this.populate)
+    const updateUserById: UserFormat = await this.users.findOneAndUpdate({ _id: userId }, { ...userData, updated_at: Date.now() }, { new: true}).populate(this.populate)
     if (!updateUserById) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
     return updateUserById
   }
 
-  public async deleteUser(userId: string): Promise<User> {
-    const deleteUserById: User = await this.users.findByIdAndDelete(userId)
+  public async deleteUser(userId: string): Promise<UserFormat> {
+    const deleteUserById: UserFormat = await this.users.findByIdAndDelete(userId)
     if (!deleteUserById) throw new CustomError('User doesn\'t exist', {}, statusCode.CONFLICT)
-
     return deleteUserById
   }
 
-  public async followUser(userId: string, followId: string): Promise<User> {
+  public async followUser(userId: string, followId: string): Promise<UserFormat> {
     try {
       if(userId===followId) throw new CustomError('Id is confict', {}, statusCode.CONFLICT)
       const findUser = await this.users.findOne({ _id: userId })
@@ -112,7 +114,7 @@ class UserService {
       const followUser = await this.users.findOne({ _id: followId })
       if (!followUser) throw new CustomError('User follow doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
       if (findUser.following.indexOf(followId as never) !== -1) throw new CustomError('Already follow this user', {}, statusCode.UNPROCESSABLE_ENTITY)
-      const addFollow: User = await this.users.findOneAndUpdate(
+      const addFollow: UserFormat = await this.users.findOneAndUpdate(
         {
           _id: userId
         },
@@ -139,14 +141,14 @@ class UserService {
     }
   }
 
-  public async unFollowUser(userId: string, followId: string): Promise<User> {
+  public async unFollowUser(userId: string, followId: string): Promise<UserFormat> {
     try {
       const findUser = await this.users.findOne({ _id: userId })
       if (!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
       const followUser = await this.users.findOne({ _id: followId })
       if (!followUser) throw new CustomError('User follow doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
       if (findUser.following.indexOf(followId as never) === -1) throw new CustomError('Not follow this user', {}, statusCode.UNPROCESSABLE_ENTITY)
-      const unFollow: User = await this.users.findOneAndUpdate(
+      const unFollow: UserFormat = await this.users.findOneAndUpdate(
         {
           _id: userId
         },
@@ -171,14 +173,14 @@ class UserService {
     }
   }
 
-  public async removeFollowUser(userId: string, followId: string): Promise<User> {
+  public async removeFollowUser(userId: string, followId: string): Promise<UserFormat> {
     try {
       const findUser = await this.users.findOne({ _id: userId })
       if (!findUser) throw new CustomError('User doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
       const followUser = await this.users.findOne({ _id: followId })
       if (!followUser) throw new CustomError('User follow doesn\'t exist', {}, statusCode.UNPROCESSABLE_ENTITY)
       if (findUser.following.indexOf(followId as never) === -1) throw new CustomError('Not follow this user', {}, statusCode.UNPROCESSABLE_ENTITY)
-      const unFollow: User = await this.users.findOneAndUpdate(
+      const unFollow: UserFormat = await this.users.findOneAndUpdate(
         {
           _id: userId
         },
@@ -208,9 +210,9 @@ class UserService {
     return blockUsers.blocked_users
   }
 
-  public async blockUser(userId: string, blockUserId: string): Promise<User> {
+  public async blockUser(userId: string, blockUserId: string): Promise<UserFormat> {
     if(isEmpty(blockUserId)) throw new CustomError('User id is empty', {}, statusCode.BAD_REQUEST)
-    const blockUser: User = await this.users.findOneAndUpdate({
+    const blockUser: UserFormat = await this.users.findOneAndUpdate({
       _id: userId
     }, {
       $push: {
@@ -218,13 +220,13 @@ class UserService {
       }
     }, {
       new: true
-    })
+    }).populate(this.populate)
     return blockUser
   }
 
-  public async unBlockUser(userId: string, blockUserId: string): Promise<User> {
+  public async unBlockUser(userId: string, blockUserId: string): Promise<UserFormat> {
     if(isEmpty(blockUserId)) throw new CustomError('User id is empty', {}, statusCode.BAD_REQUEST)
-    const blockUser: User = await this.users.findOneAndUpdate({
+    const blockUser: UserFormat = await this.users.findOneAndUpdate({
       _id: userId
     }, {
       $pull: {
@@ -236,8 +238,8 @@ class UserService {
     return blockUser
   }
 
-  public async searchUsers(userId: string, name: string, page: string): Promise<User[]> {
-    const searchUsers: User[] = await this.users.find({
+  public async searchUsers(userId: string, name: string, page: string): Promise<UserFormat[]> {
+    const searchUsers: UserFormat[] = await this.users.find({
       $or: [
         {full_name: new RegExp(name, 'i')},
         {user_name: new RegExp(name, 'i')}

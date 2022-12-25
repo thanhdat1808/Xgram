@@ -1,8 +1,7 @@
 import { Response } from 'express'
-import { Story, StoryFormat } from '@/interfaces/stories.interface'
 import { resError, resSuccess } from '@/utils/custom-response'
 import { RequestWithUser } from '@interfaces/auth.interface'
-import { formatNotification, formatStories } from '@/utils/formatData'
+import { formatNotification } from '@/utils/formatData'
 import { statusCode } from '@/utils/statuscode'
 import NotificationsService from '@/services/notifications.service'
 import { CreateNotification, Notification } from '@/interfaces/notifications.interface'
@@ -26,8 +25,8 @@ class NotificationController {
         ...req.body,
         posted_by: req.user._id.valueOf()
       }
-      const createStory: StoryFormat = await this.notificationService.createNotification(postData)
-      resSuccess(res, formatStories(createStory), 'created')
+      const createStory: Notification = await this.notificationService.createNotification(postData)
+      resSuccess(res, formatNotification(createStory), 'created')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
     }
@@ -36,7 +35,7 @@ class NotificationController {
   public deleteNotification = async (req: RequestWithUser, res: Response) => {
     try {
       const notifId: string = req.params.id
-      const deletePostData: Story = await this.notificationService.deleteNotification(notifId)
+      const deletePostData: Notification = await this.notificationService.deleteNotification(notifId)
       resSuccess(res, deletePostData, 'deleted')
     } catch (error) {
       resError(res, error.message || error as string, error.code || statusCode.INTERNAL_SERVER_ERROR)
