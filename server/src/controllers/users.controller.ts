@@ -85,6 +85,7 @@ class UsersController {
       const addFollow: UserFormat = await this.userService.followUser(userId, followId)
       const data: CreateNotification = {
         user: followId,
+        to_user: userId,
         type: NotificationType.FOLLOW,
         ref_comment: null,
         ref_post: null,

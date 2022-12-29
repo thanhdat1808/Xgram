@@ -1,5 +1,5 @@
 import { TMedia, TMediaStory } from '@/dtos/posts.dto'
-import { ConversationFormatInterface, ConversationInterface } from '@/interfaces/conversations.interface'
+import { ConversationInterface } from '@/interfaces/conversations.interface'
 import { MessageFormatInterface } from '@/interfaces/messages.interface'
 import { Notification } from '@/interfaces/notifications.interface'
 import { CommentFormat, PostFormat } from '@/interfaces/posts.interface'

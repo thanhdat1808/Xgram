@@ -15,6 +15,10 @@ const commentSchema: Schema = new Schema({
   created_at: {
     type: Date,
     default: Date.now
+  },
+  updated_at: {
+    type: Date,
+    default: Date.now
   }
 })
 const commentModel = model<CommentFormat & Document>('Comment', commentSchema)

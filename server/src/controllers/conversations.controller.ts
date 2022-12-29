@@ -1,5 +1,5 @@
 import { RequestWithUser } from '@/interfaces/auth.interface'
-import { ConversationFormatInterface, ConversationInterface, CreateConversation } from '@/interfaces/conversations.interface'
+import { ConversationInterface, CreateConversation } from '@/interfaces/conversations.interface'
 import { MessageFormatInterface } from '@/interfaces/messages.interface'
 import ConversationService from '@/services/conversations.service'
 import { resError, resSuccess } from '@/utils/custom-response'
