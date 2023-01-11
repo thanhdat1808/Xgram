@@ -4,7 +4,6 @@ import { Notification } from '@/interfaces/notifications.interface'
 const notificationsSchema: Schema = new Schema({
   type: {
     type: String,
-    enum: ['react', 'follow', 'comment', 'mention'],
     require: true
   },
   user: {

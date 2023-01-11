@@ -5,6 +5,7 @@ import { Notification } from '@/interfaces/notifications.interface'
 import { CommentFormat, PostFormat } from '@/interfaces/posts.interface'
 import { StoryFormat } from '@/interfaces/stories.interface'
 import { User, UserFormat } from '@/interfaces/users.interface'
+import { NotificationType } from './statuscode'
 
 export const formatFollow = (user: User) => {
   return {
@@ -123,7 +124,7 @@ export const formatConversation = (conversation: ConversationInterface) => {
   return {
     conversation_id: conversation._id,
     last_message: conversation.last_message ? formatMessage(conversation.last_message) : null,
-    user: formatFollow(conversation.user[0]),
+    user: formatFollow(conversation.users[0]),
     created_at: conversation.created_at,
     updated_at: conversation.updated_at
   }
@@ -131,14 +132,20 @@ export const formatConversation = (conversation: ConversationInterface) => {
 export const formatNotification = (notif: Notification) => {
   let reference
   switch (notif.type) {
-    case 'react':
+    case NotificationType.REACT:
       reference = notif.ref_post
       break
-    case 'comment':
+    case NotificationType.COMMENT:
       reference = notif.ref_comment
       break
-    case 'follow':
+    case NotificationType.FOLLOW:
       reference = notif.ref_user
+      break
+    case NotificationType.MENTION_COMMENT:
+      reference = notif.ref_comment
+      break
+    case NotificationType.MENTION_POST:
+      reference = notif.ref_post
       break
     default:
       break

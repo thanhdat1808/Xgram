@@ -1,5 +1,5 @@
 # Common build stage
-FROM node:14.20-alpine as common-build-stage
+FROM node:16.18-alpine as common-build-stage
 
 WORKDIR /node/app
 
@@ -9,14 +9,14 @@ RUN npm i || npm i
 
 COPY . .
 
-RUN npm run build
+# RUN npm run build
 
 EXPOSE 3000
 
 # Development build stage
 # FROM common-build-stage as development-build-stage
 
-ENV NODE_ENV development
+ENV NODE_ENV dev
 
 CMD ["npm", "run", "start"]
 # CMD ["tail", "-f"]

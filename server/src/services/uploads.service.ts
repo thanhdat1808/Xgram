@@ -17,7 +17,7 @@ class UploadService {
       })
       return tag.data.class_name
     } catch (error) {
-      throw error
+      console.log(error)
     }
   }
 

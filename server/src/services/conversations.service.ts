@@ -9,7 +9,7 @@ import messageModel from '@/models/message.model'
 class ConversationService {
   public conversations = conversationsModel
   public messages = messageModel
-  public populate = ['last_message', 'user']
+  public populate = ['last_message', 'users']
   public populateMessage = [{
     path: 'post',
     populate: ['posted_by', 'comments', 'reactions']
@@ -25,32 +25,29 @@ class ConversationService {
   }]
 
   public async getConversations(userId: string): Promise<ConversationInterface[]> {
-    const findConversations: ConversationInterface[] = await this.conversations.find({ user: userId }).populate(this.populate)
-    if(!findConversations) return []
+    const findConversations: ConversationInterface[] = await this.conversations.find({ users: userId }).sort({'updated_at': -1}).populate(this.populate)
+    if(!findConversations.length) return []
     findConversations.map(conversation => {
-      const user = conversation.user.filter(user => user._id.valueOf() !== userId)
-      delete conversation.user
-      conversation.user = user
+      const user = conversation.users.filter(user => user._id.valueOf() !== userId)
+      delete conversation.users
+      conversation.users = user
     })
     return findConversations
   }
   public async createConversation(userId: string, dataConversation: CreateConversation): Promise<ConversationInterface> {
     if (isEmpty(dataConversation)) throw new CustomError('message id is empty', {}, statusCode.BAD_REQUEST)
-    console.log(dataConversation)
-    const checkExistConversation: ConversationInterface = await this.conversations.findOne({ user: dataConversation.user }).populate(this.populate)
-    console.log(checkExistConversation)
+    const checkExistConversation: ConversationInterface = await this.conversations.findOne({ users: { $all: dataConversation.users } }).populate(this.populate)
     if(checkExistConversation) {
-      const user = checkExistConversation.user.filter(user => user._id.valueOf() !== userId)
-      delete checkExistConversation.user
-      checkExistConversation.user = user
+      const user = checkExistConversation.users.filter(user => user._id.valueOf() !== userId)
+      delete checkExistConversation.users
+      checkExistConversation.users = user
       return checkExistConversation
     } 
     const createConversation: ConversationInterface = await (await this.conversations.create(dataConversation)).populate(this.populate)
-    console.log(createConversation)
     if(createConversation) {
-      const user = createConversation.user.filter(user => user._id.valueOf() !== userId)
-      delete createConversation.user
-      createConversation.user = user
+      const user = createConversation.users.filter(user => user._id.valueOf() !== userId)
+      delete createConversation.users
+      createConversation.users = user
       return createConversation
     } 
   }

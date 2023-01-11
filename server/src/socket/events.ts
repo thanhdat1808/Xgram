@@ -91,14 +91,14 @@ const onConnection = (app: AppData, socket: Socket, io: Server) => async (data: 
     socket.emit('error', error)
   }
 }
-const sendMessage = (app: AppData, socket: Socket, io: Server) => async (data: SendMessage, callback) => {
+const sendMessage = (app: AppData, socket: Socket, io: Server) => async (data: SendMessage, callback: Function) => {
   console.log('Send message', data)
   let dataMessage: CreateMessage
   try {
     if(!data.conversation_id) {
       console.log('Create conversation')
       const createConversation = await conversations.createConversation(data.sent_by,{
-        user: [data.sent_by, data.sent_to]
+        users: [data.sent_by, data.sent_to]
       })
       dataMessage = {
         conversation_id: createConversation._id.valueOf(),
@@ -130,20 +130,22 @@ const sendMessage = (app: AppData, socket: Socket, io: Server) => async (data: S
     const message = formatMessage(createMessage)
     if(callback) callback(formatRes(message, 'OK'))
     const targetSocket = findSocket(app, data.sent_to)
-    if(targetSocket) io.to(targetSocket.id).emit('sendMessage', message)
+    if(targetSocket) io.to(targetSocket.id).emit('newMessage', message)
   } catch (error) {
     console.log(error)
     if(callback) callback(formatRes(null, 'ERROR'))
   }
 }
-const seenMessage = (app: AppData, socket: Socket, io: Server) => async (data: {message_id: string, user_id: string}) => {
+const seenMessage = (app: AppData, socket: Socket, io: Server) => async (data: {message_id: string,}, callback: Function) => {
   try {
-    const updateSeen = await conversations.updateStatusMessage(data.message_id, MessageStatus.READ)
-    io.to(findSocket(app, data.user_id).id).emit('seenMessage', {
-      message: formatMessage(updateSeen)
-    })
+    console.log('Seen message', data)
+    const updateMessage: MessageFormatInterface = await conversations.updateStatusMessage(data.message_id, MessageStatus.READ)
+    if(callback) callback(formatRes(formatMessage(updateMessage), 'OK'))
+    console.log('Seen message', updateMessage)
+    const targetSocket = findSocket(app, updateMessage.sent_by._id.valueOf())
+    if(targetSocket) io.to(targetSocket.id).emit('seenMessage', formatMessage(updateMessage))
   } catch (error) {
-    
+    if(callback) callback(formatRes(null, 'ERROR'))
   }
 }
 const disconnect = (app: AppData, socket: Socket, io: Server) => () => {

@@ -23,7 +23,7 @@ class ConversationsController {
   public createConversation = async (req: RequestWithUser, res: Response) => {
     try {
       const conversationData: CreateConversation = {
-        user: [req.user._id.valueOf(), req.body.user_id]
+        users: [req.user._id.valueOf(), req.body.user_id]
       }
       const conversation: ConversationInterface = await this.conversationService.createConversation(req.user._id.valueOf() ,conversationData)
       resSuccess(res, formatConversation(conversation), 'Created')

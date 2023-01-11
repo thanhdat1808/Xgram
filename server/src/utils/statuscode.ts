@@ -125,6 +125,6 @@ export const NotificationType = {
   REACT: 'react',
   FOLLOW: 'follow',
   COMMENT: 'comment',
-  MENTION_POST: 'mention_post',
-  MENTION_COMMENT: 'mention_comment'
+  MENTION_POST: 'mention_in_post',
+  MENTION_COMMENT: 'mention_in_comment'
 }

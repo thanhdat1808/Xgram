@@ -5,7 +5,7 @@ services:
     image: nginx:alpine
     container_name: proxy
     ports:
-      - '80:80'
+      - '8080:80'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     restart: 'unless-stopped'
@@ -40,7 +40,3 @@ services:
 networks:
   backend:
     name: server_backend
-
-volumes:
-  data:
-    driver: local

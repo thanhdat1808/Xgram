@@ -115,8 +115,8 @@ class PostService {
       const mention = postData.message.match(this.regex)
       if(mention) {
         const findUser: User[] = await this.users.find({ username: { $in: mention } }).populate(['followers', 'following'])
-        if(findUser) {
-          findUser.map(user => async () => {
+        if(findUser.length) {
+          for(const user of findUser) {
             const notificationData: CreateNotification = {
               type: NotificationType.MENTION_POST,
               ref_post: createPost._id,
@@ -130,7 +130,7 @@ class PostService {
             if(createNotification) {
               sendNotification(app, user._id.valueOf(), createNotification, io)
             }
-          })
+          }
         }
       }
       return createPost
@@ -197,15 +197,15 @@ class PostService {
         if(createNotif) {
           sendNotification(app, findPost.posted_by.valueOf(), createNotif, io)
         }
-        const mentions = comment.match(this.regex)
+        const mentions = Array.from(new Set(comment.match(this.regex)))
         if(mentions.length) {
           const users = await this.users.find({ username: { $in: mentions } })
           if(users) {
-            users.forEach(async (user: User) => {
+            for(const user of users) {
               if(user._id !== userId) {
                 const createNotification = await this.notificationService.createNotification({
-                  user: user._id,
-                  to_user: userId,
+                  user: userId,
+                  to_user: user._id,
                   type: NotificationType.MENTION_COMMENT,
                   post_id: findPost._id,
                   ref_post: null,
@@ -216,12 +216,14 @@ class PostService {
                   sendNotification(app, user._id.valueOf(), createNotification, io)
                 }
               }
-            })
+            }
           }
         }
       }
+      console.log(getComment)
       return getComment
     } catch (error) {
+      console.log(error)
       throw new CustomError('Fail to insert DB', {}, statusCode.INTERNAL_SERVER_ERROR)
     }
   }
