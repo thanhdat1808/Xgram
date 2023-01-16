@@ -6,6 +6,7 @@ export const app: AppData = []
 export default (io: Server) => {
   io.on('connection', (socket: Socket) => {
     console.log('Connection...')
+    console.log(app)
     const eventHandlers = [
       events(app, socket, io)
     ]

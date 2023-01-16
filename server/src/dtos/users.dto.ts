@@ -18,6 +18,9 @@ export class CreateUserDto {
 
   @IsString()
   date_of_birth: string
+
+  @IsString()
+  avatar_url: string
 }
 export class UpdateUserDto {
   @IsEmail()

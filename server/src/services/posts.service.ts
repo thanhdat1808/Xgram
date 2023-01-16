@@ -184,7 +184,8 @@ class PostService {
         }
       }, { new: true }).populate(this.populate)
       const getComment: CommentFormat = await this.comments.findById(newComment._id).populate(this.populateComment)
-      if(getComment) {
+      console.log('aaaaaaaaa', userId, findPost.posted_by.valueOf())
+      if(getComment && findPost.posted_by.valueOf() !== userId) {
         const createNotif = await this.notificationService.createNotification({
           user: userId,
           to_user: findPost.posted_by,
