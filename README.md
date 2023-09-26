@@ -12,7 +12,7 @@ npm i
 ```
 cp .env.example .env.local // for run local
 
-cp .env.example .env.dev // for run docker
+cp .env.example .env.dev // for run docker and DB_HOST = mongo
 ```
 - Build src
 ```
