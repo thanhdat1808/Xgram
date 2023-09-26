@@ -11,7 +11,7 @@ import NotificationsRouter from '@routes/notifications.router'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
 import { logger } from './utils/logger'
-import { NODE_ENV, PORT } from './config'
+import { NODE_ENV, PORT, ORIGIN } from './config'
 import socketHandler from './socket/index.socket'
 
 validateEnv()
@@ -21,7 +21,7 @@ const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute(), new Po
 const server = createServer(app.app)
 export const io = new Server(server, {
   cors: {
-    origin: '*'
+    origin: ORIGIN
   }
 })
 socketHandler(io)

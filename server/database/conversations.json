@@ -1,0 +1,53 @@
+[{
+  "_id": {
+    "$oid": "63c2180b09d2f30bac867ef4"
+  },
+  "users": [
+    {
+      "$oid": "63c21098cfa49826d7809534"
+    },
+    {
+      "$oid": "63c211afc9183a35f2ac1c91"
+    }
+  ],
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664523460"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673668078267"
+    }
+  },
+  "__v": 0,
+  "last_message": {
+    "$oid": "63c225ee9368b0c7f1e1dfa9"
+  }
+},{
+  "_id": {
+    "$oid": "63c2182009d2f30bac867f44"
+  },
+  "users": [
+    {
+      "$oid": "63c21098cfa49826d7809534"
+    },
+    {
+      "$oid": "63c2163c32166e1689be0373"
+    }
+  ],
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664544192"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664544375"
+    }
+  },
+  "__v": 0,
+  "last_message": {
+    "$oid": "63c2182009d2f30bac867f49"
+  }
+}]

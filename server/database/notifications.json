@@ -1,0 +1,70 @@
+[{
+  "_id": {
+    "$oid": "63c217d209d2f30bac867ebd"
+  },
+  "type": "react",
+  "user": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "to_user": {
+    "$oid": "63c21098cfa49826d7809534"
+  },
+  "ref_post": {
+    "$oid": "63c21488c9183a35f2ac1e08"
+  },
+  "ref_user": null,
+  "ref_comment": null,
+  "post_id": "63c21488c9183a35f2ac1e08",
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664466694"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c21a3509d2f30bac868135"
+  },
+  "type": "follow",
+  "user": {
+    "$oid": "63c21098cfa49826d7809534"
+  },
+  "to_user": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "ref_post": null,
+  "ref_user": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "ref_comment": null,
+  "post_id": null,
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673665077858"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c227f79368b0c7f1e1e019"
+  },
+  "type": "react",
+  "user": {
+    "$oid": "63c21098cfa49826d7809534"
+  },
+  "to_user": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "ref_post": {
+    "$oid": "63c224a09368b0c7f1e1dc48"
+  },
+  "ref_user": null,
+  "ref_comment": null,
+  "post_id": "63c224a09368b0c7f1e1dc48",
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673668599715"
+    }
+  },
+  "__v": 0
+}]

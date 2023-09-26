@@ -1,0 +1,92 @@
+[{
+  "_id": {
+    "$oid": "63c21098cfa49826d7809534"
+  },
+  "email": "thanhdat2000dn@gmail.com",
+  "password": "$2b$10$7q2rvp2H8eLrXkxsxZIlt.vcFJ6uhXXyqpqJA0csqu6TtTVPc97oa",
+  "full_name": "Thanh Dat",
+  "user_name": "ptdat",
+  "date_of_birth": "2000-08-18",
+  "followers": [
+    {
+      "$oid": "63c211afc9183a35f2ac1c91"
+    }
+  ],
+  "following": [],
+  "gender": 1,
+  "websites": [],
+  "blocked_users": [],
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673662616543"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664209258"
+    }
+  },
+  "__v": 0,
+  "cover_url": "/uploads/db5394ec-0eb4-4c62-91e3-a61d6068fabe.png",
+  "avatar_url": "/uploads/0827a7de-2d41-4f9c-9e29-e10c78a0b3c2.png"
+},{
+  "_id": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "email": "vuzero@gmail.com",
+  "password": "$2b$10$j0cjRA1uK.zEzgRVM2SROOBHGm0RyLoD7XWhwh3NZsmchqvf6PlS6",
+  "full_name": "Vu Nguyen",
+  "user_name": "vucms0202",
+  "avatar_url": "/uploads/6d588e8d-ecb2-4aa2-96ad-a26ad34dd156.jpeg",
+  "date_of_birth": "1990-01-01",
+  "followers": [],
+  "following": [
+    {
+      "$oid": "63c21098cfa49826d7809534"
+    }
+  ],
+  "gender": 0,
+  "websites": [
+    "google.com"
+  ],
+  "blocked_users": [],
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673662895319"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673663892182"
+    }
+  },
+  "__v": 0,
+  "cover_url": "/uploads/c01d4237-b1fd-4f4a-80e2-abc473c04f99.png",
+  "bio": "Hello I’m mobile developer from Viet Nam"
+},{
+  "_id": {
+    "$oid": "63c2163c32166e1689be0373"
+  },
+  "email": "nhvu.18it1@vku.udn.vn",
+  "password": "$2b$10$ClXhciHeCPjfDlkwm4C0G.ijLbd.H763d4maRa3MrQ0C3Tx8mxly.",
+  "full_name": "Vu thu hai",
+  "user_name": "vuthuhai",
+  "avatar_url": "/uploads/7b1e9d7e-5d9c-4ead-9a53-c7e21d5796b7.jpeg",
+  "date_of_birth": "1990-01-01",
+  "followers": [],
+  "following": [],
+  "gender": 0,
+  "websites": [],
+  "blocked_users": [],
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664060932"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664060932"
+    }
+  },
+  "__v": 0
+}]

@@ -1,0 +1,221 @@
+[{
+  "_id": {
+    "$oid": "63c2122ac9183a35f2ac1cc4"
+  },
+  "comment": "/uploads/261a88ca-fddc-4fc0-849b-08a7371d599e.jpeg",
+  "is_image": true,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673663018357"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673663018357"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c21245c9183a35f2ac1cd7"
+  },
+  "comment": "This is nice too ",
+  "is_image": false,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673663045255"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673663045255"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c2168a32166e1689be03f5"
+  },
+  "comment": "Wao",
+  "is_image": false,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664138269"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664138269"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c2173484efbc5f45c26ba4"
+  },
+  "comment": "Hello",
+  "is_image": false,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664308194"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664308194"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c2176009d2f30bac867e0f"
+  },
+  "comment": "Hi",
+  "is_image": false,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664352027"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664352027"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c217b209d2f30bac867e7f"
+  },
+  "comment": "Hi",
+  "is_image": false,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664434102"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664434102"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c217c709d2f30bac867e9b"
+  },
+  "comment": "Lo",
+  "is_image": false,
+  "commented_by": {
+    "$oid": "63c21098cfa49826d7809534"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664455858"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664455858"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c217e209d2f30bac867ed1"
+  },
+  "comment": "/uploads/f89ba120-9595-4d73-932d-df512eb8ffc5.jpeg",
+  "is_image": true,
+  "commented_by": {
+    "$oid": "63c21098cfa49826d7809534"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673664482314"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673664482314"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c225119368b0c7f1e1dd06"
+  },
+  "comment": "Haha funny video",
+  "is_image": false,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673667857467"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673667857467"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c225169368b0c7f1e1dd14"
+  },
+  "comment": "/uploads/b25c8111-ab11-4475-8721-1ae13f6aac75.jpeg",
+  "is_image": true,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673667862393"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673667862393"
+    }
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "63c2251f9368b0c7f1e1dd31"
+  },
+  "comment": "/uploads/bf8b164e-9337-4c98-a612-44178d144704.jpeg",
+  "is_image": true,
+  "commented_by": {
+    "$oid": "63c211afc9183a35f2ac1c91"
+  },
+  "created_at": {
+    "$date": {
+      "$numberLong": "1673667871564"
+    }
+  },
+  "updated_at": {
+    "$date": {
+      "$numberLong": "1673667871564"
+    }
+  },
+  "__v": 0
+}]
